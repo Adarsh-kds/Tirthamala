@@ -1,0 +1,11 @@
+.next
+out
+node_modules
+package-lock.json
+public/maplibre
+public/geo
+test-results
+playwright-report
+data
+research
+CONTENT_STATUS.md

@@ -1,0 +1,125 @@
+/* Design tokens. Light is the default; dark is "temple at night". Verified by scripts/check-contrast.mjs */
+:root {
+  --color-parchment: #f7efdc;
+  --color-ivory: #fffaf0;
+  --color-ink: #2a1a14;
+  --color-ink-soft: #5b4034;
+  --color-maroon: #6b1220;
+  --color-kumkum: #a4161a;
+  --color-saffron: #a34a06;
+  --color-marigold: #e8a317;
+  --color-gold: #8a6416;
+  --color-rule: #d9c69a;
+  --color-night: #12132a;
+
+  --bg: var(--color-parchment);
+  --surface: var(--color-ivory);
+  --text: var(--color-ink);
+  --text-soft: var(--color-ink-soft);
+  --accent: var(--color-maroon);
+  --accent-warm: var(--color-saffron);
+  --accent-gold: var(--color-gold);
+  --rule: var(--color-rule);
+  --focus: #1c4fd8;
+
+  --trad-shaiva: #34448a;
+  --trad-shakta: #a4161a;
+  --trad-vaishnava: #9a5200;
+  --trad-ganapatya: #a3410a;
+  --trad-kaumara: #0f6b5c;
+  --trad-ayyappa: #2f5d2a;
+  --trad-saura: #8a6416;
+  --trad-navagraha: #5a3a8c;
+  --trad-dattatreya: #6b4a2b;
+  --trad-jain: #7a1f5c;
+  --trad-buddhist: #7a4a12;
+  --trad-sikh: #1b4f9a;
+  --trad-islamic: #14603f;
+  --trad-christian: #7a2632;
+  --trad-parsi: #5b5f66;
+  --trad-other: #4a4a4a;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+  --shadow-soft: 0 1px 2px rgb(42 26 20 / 0.08), 0 6px 20px rgb(107 18 32 / 0.08);
+  --reading-width: 68ch;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.25rem;
+  --text-3xl: clamp(2.5rem, 6vw, 4.25rem);
+  --leading-body: 1.7;
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--color-night);
+  --surface: #1c1e42;
+  --text: #f3e8d0;
+  --text-soft: #c9bda3;
+  --accent: #f0a04a;
+  --accent-warm: #f0a04a;
+  --accent-gold: #dcb75f;
+  --rule: #3b3d6b;
+  --focus: #8db1ff;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 28px rgb(0 0 0 / 0.35);
+
+  --trad-shaiva: #9fb0ff;
+  --trad-shakta: #ff8c8f;
+  --trad-vaishnava: #f0b45a;
+  --trad-ganapatya: #ff9d66;
+  --trad-kaumara: #5fd1bb;
+  --trad-ayyappa: #8ed17f;
+  --trad-saura: #e6c66a;
+  --trad-navagraha: #c4a3f2;
+  --trad-dattatreya: #d6b58c;
+  --trad-jain: #f09ad0;
+  --trad-buddhist: #e0b26a;
+  --trad-sikh: #8fb8ff;
+  --trad-islamic: #6fd1a3;
+  --trad-christian: #f0a0aa;
+  --trad-parsi: #b8bcc4;
+  --trad-other: #c8c8c8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--color-night);
+    --surface: #1c1e42;
+    --text: #f3e8d0;
+    --text-soft: #c9bda3;
+    --accent: #f0a04a;
+    --accent-warm: #f0a04a;
+    --accent-gold: #dcb75f;
+    --rule: #3b3d6b;
+    --focus: #8db1ff;
+    --trad-shaiva: #9fb0ff;
+    --trad-shakta: #ff8c8f;
+    --trad-vaishnava: #f0b45a;
+    --trad-ganapatya: #ff9d66;
+    --trad-kaumara: #5fd1bb;
+    --trad-ayyappa: #8ed17f;
+    --trad-saura: #e6c66a;
+    --trad-navagraha: #c4a3f2;
+    --trad-dattatreya: #d6b58c;
+    --trad-jain: #f09ad0;
+    --trad-buddhist: #e0b26a;
+    --trad-sikh: #8fb8ff;
+    --trad-islamic: #6fd1a3;
+    --trad-christian: #f0a0aa;
+    --trad-parsi: #b8bcc4;
+    --trad-other: #c8c8c8;
+  }
+}

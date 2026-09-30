@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-text-soft: var(--text-soft);
+  --color-accent: var(--accent);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-gold: var(--accent-gold);
+  --color-rule: var(--rule);
+  --font-display: var(--font-cormorant), "Times New Roman", serif;
+  --font-sanskrit: var(--font-tiro), var(--font-cormorant), serif;
+  --font-sans: var(--font-source-sans), system-ui, sans-serif;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-source-sans), system-ui, sans-serif;
+  font-size: 100%;
+  line-height: var(--leading-body);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-size: var(--text-base);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -4rem;
+  background: var(--surface);
+  color: var(--text);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  z-index: 50;
+}
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mandala-spin {
+    animation: mandala-turn 240s linear infinite;
+  }
+}
+@keyframes mandala-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media print {
+  header,
+  footer,
+  .skip-link,
+  [role="region"][aria-label^="Map"],
+  button,
+  form[role="search"] {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    word-break: break-all;
+  }
+  main {
+    max-width: none !important;
+  }
+}
