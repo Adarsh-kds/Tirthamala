@@ -24,7 +24,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         fontFamily: "serif",
       }}
     >
-      <div style={{ fontSize: 28, color: "#5b4034" }}>Tirtha Atlas of India</div>
+      <div style={{ fontSize: 28, color: "#5b4034" }}>Tirthamala</div>
       <div style={{ fontSize: 88, fontWeight: 600, marginTop: 24 }}>{s?.name ?? slug}</div>
       <div style={{ fontSize: 34, color: "#5b4034", marginTop: 24 }}>
         {[s?.location.city, s?.location.state].filter(Boolean).join(", ")}

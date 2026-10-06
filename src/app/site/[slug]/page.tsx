@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { circuitsForSite, getSite, getSites, getTraditions } from "@/lib/data";
-import { regionOf, slugify, distanceKm, ACCURACY_LABEL } from "@/lib/view";
+import {
+  regionOf,
+  slugify,
+  distanceKm,
+  relatedFor,
+  RELATION_LABEL,
+  ACCURACY_LABEL,
+} from "@/lib/view";
 import { CORRECTIONS_EMAIL, INDEXING_ON, SITE_URL } from "@/lib/site-config";
 import { t } from "@/lib/i18n";
 import { AccuracyBadge, StatusBadge, TraditionChip } from "@/components/Badges";
@@ -111,6 +118,9 @@ export default async function SitePage({ params }: PageProps<"/site/[slug]">) {
         .sort((a, b) => a.d - b.d)
         .slice(0, 6)
     : [];
+  const allSites = getSites();
+  const byslug = new Map(allSites.map((x) => [x.slug, x]));
+  const related = relatedFor(s, allSites);
   const region = regionOf(s);
   const isDraft = s.contentState !== "published";
   const mapPoints = hasCoords
@@ -353,6 +363,28 @@ export default async function SitePage({ params }: PageProps<"/site/[slug]">) {
                   {m.order ? ` — #${m.order}` : ""}
                   {m.role !== "standard" ? ` (${m.role})` : ""}
                   {m.note ? `. ${m.note}` : ""}
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+      )}
+
+      {related.length > 0 && (
+        <Section id="related" title={t("site.related")}>
+          <ul className="mt-3 list-disc space-y-2 pl-5">
+            {related.map((r) => {
+              const o = byslug.get(r.siteSlug);
+              if (!o) return null;
+              return (
+                <li key={r.siteSlug}>
+                  <span style={{ color: "var(--text-soft)" }}>
+                    {RELATION_LABEL[r.relation] ?? r.relation}:
+                  </span>{" "}
+                  <Link className="underline" href={`/site/${o.slug}/`}>
+                    {o.name}
+                  </Link>
+                  {r.note ? `. ${r.note}` : ""}
                 </li>
               );
             })}

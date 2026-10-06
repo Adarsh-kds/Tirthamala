@@ -4,6 +4,7 @@ export type Card = {
   slug: string;
   name: string;
   nameDevanagari?: string;
+  altNames?: string[];
   kind: string;
   traditions: string[];
   deities: string[];
@@ -37,6 +38,7 @@ export function toCard(s: Site): Card {
     slug: s.slug,
     name: s.name,
     nameDevanagari: s.nameDevanagari,
+    altNames: s.altNames.length ? s.altNames : undefined,
     kind: s.kind,
     traditions: s.traditions,
     deities: s.deities,
@@ -75,3 +77,30 @@ export function distanceKm(a: [number, number], b: [number, number]) {
     Math.sin(dLat / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
+
+export type RelatedView = { siteSlug: string; relation: string; note?: string };
+
+// Merges explicit links with their mirrors so a link stored on one record shows on both pages.
+export function relatedFor(site: Site, all: Site[]): RelatedView[] {
+  const out = new Map<string, RelatedView>();
+  for (const r of site.related) out.set(r.siteSlug, { ...r });
+  for (const o of all) {
+    for (const r of o.related) {
+      if (r.siteSlug !== site.slug || out.has(o.slug)) continue;
+      out.set(o.slug, {
+        siteSlug: o.slug,
+        relation: r.relation === "part-of" ? "contains" : r.relation,
+        note: r.note,
+      });
+    }
+  }
+  return [...out.values()];
+}
+
+export const RELATION_LABEL: Record<string, string> = {
+  claimant: "Another place claiming the same identity",
+  "same-complex": "Another shrine in the same complex",
+  "part-of": "Lies within",
+  contains: "Contains",
+  "possible-duplicate": "May be the same site",
+};

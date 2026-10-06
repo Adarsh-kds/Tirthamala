@@ -1,4 +1,4 @@
-export const SITE_NAME = "Tirtha Atlas";
+export const SITE_NAME = "Tirthamala";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tirtha.cp5.in";
 // Indexing stays off until the owner sets NEXT_PUBLIC_INDEXING=on for launch.
 export const INDEXING_ON = process.env.NEXT_PUBLIC_INDEXING === "on";

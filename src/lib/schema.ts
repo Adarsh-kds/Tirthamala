@@ -82,6 +82,17 @@ export const HistoryPeriodSchema = z
   })
   .strict();
 
+export const RELATIONS = [
+  "claimant", // another place claiming the same identity (e.g. rival Jyotirlinga claimants)
+  "same-complex", // separate shrines inside one temple complex
+  "part-of", // this record lies within the related one (e.g. a temple within a town record)
+  "possible-duplicate", // may be the same entity as the related record; needs a decision
+] as const;
+
+export const RelatedSchema = z
+  .object({ siteSlug: slug, relation: z.enum(RELATIONS), note: z.string().optional() })
+  .strict();
+
 export const SiteSchema = z
   .object({
     id: slug,
@@ -123,6 +134,7 @@ export const SiteSchema = z
       })
       .strict()
       .default({}),
+    related: z.array(RelatedSchema).default([]),
     images: z.array(ImageSchema).default([]),
     sources: z.array(SourceSchema).default([]),
     verification: VerificationSchema,

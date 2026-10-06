@@ -64,6 +64,16 @@ export function Hub({
     window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
   }, [view, q, trad, region, status, selected, initialView]);
 
+  useEffect(() => {
+    const onSearch = (e: Event) => {
+      setQ((e as CustomEvent<string>).detail ?? "");
+      setView("cards");
+      setShown(PAGE);
+    };
+    window.addEventListener("atlas:search", onSearch);
+    return () => window.removeEventListener("atlas:search", onSearch);
+  }, []);
+
   const tradName = useMemo(() => new Map(traditions.map((x) => [x.slug, x.name])), [traditions]);
   const nameOf = (s: string) => tradName.get(s) ?? s;
 
@@ -72,7 +82,7 @@ export function Hub({
   const index = useMemo(() => {
     if (!hasQuery) return null;
     const ms = new MiniSearch<Card>({
-      fields: ["name", "deitiesText", "place", "summary"],
+      fields: ["name", "altText", "deitiesText", "place", "summary"],
       storeFields: [],
       idField: "slug",
       extractField: (d, f) =>
@@ -81,7 +91,7 @@ export function Hub({
           : f === "place"
             ? [d.city, d.state].join(" ")
             : (d as never)[f],
-      searchOptions: { prefix: true, fuzzy: 0.2, boost: { name: 3 } },
+      searchOptions: { prefix: true, fuzzy: 0.2, boost: { name: 3, altText: 2 } },
     });
     ms.addAll(cards);
     return ms;
@@ -154,24 +164,13 @@ export function Hub({
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const field = "rounded border px-2 py-1.5 text-sm";
-  const fieldStyle = {
-    borderColor: "var(--rule)",
-    background: "var(--surface)",
-    color: "var(--text)",
-  };
-
   return (
     <section aria-labelledby="hub-title">
       <h2 id="hub-title" className="sr-only">
         {t("hub.title")}
       </h2>
-      <form
-        role="search"
-        className="flex flex-wrap items-end gap-3"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <label className="flex min-w-56 flex-1 flex-col text-sm">
+      <form role="search" className="filter-bar" onSubmit={(e) => e.preventDefault()}>
+        <label className="field-label min-w-56 flex-[2]">
           {t("hub.search")}
           <input
             type="search"
@@ -180,12 +179,11 @@ export function Hub({
               setQ(e.target.value);
               setShown(PAGE);
             }}
-            className={field}
-            style={fieldStyle}
+            className="field"
             placeholder={t("hub.searchPlaceholder")}
           />
         </label>
-        <label className="flex flex-col text-sm">
+        <label className="field-label">
           {t("hub.tradition")}
           <select
             value={trad}
@@ -193,8 +191,7 @@ export function Hub({
               setTrad(e.target.value);
               setShown(PAGE);
             }}
-            className={field}
-            style={fieldStyle}
+            className="field"
           >
             <option value="">{t("hub.all")}</option>
             {traditions.map((x) => (
@@ -204,7 +201,7 @@ export function Hub({
             ))}
           </select>
         </label>
-        <label className="flex flex-col text-sm">
+        <label className="field-label">
           {t("hub.region")}
           <select
             value={region}
@@ -212,8 +209,7 @@ export function Hub({
               setRegion(e.target.value);
               setShown(PAGE);
             }}
-            className={field}
-            style={fieldStyle}
+            className="field"
           >
             <option value="">{t("hub.all")}</option>
             {regions.map((x) => (
@@ -223,7 +219,7 @@ export function Hub({
             ))}
           </select>
         </label>
-        <label className="flex flex-col text-sm">
+        <label className="field-label">
           {t("hub.verification")}
           <select
             value={status}
@@ -231,8 +227,7 @@ export function Hub({
               setStatus(e.target.value);
               setShown(PAGE);
             }}
-            className={field}
-            style={fieldStyle}
+            className="field"
           >
             <option value="">{t("hub.all")}</option>
             <option value="verified">{t("status.verified")}</option>
@@ -243,8 +238,7 @@ export function Hub({
         {(q || trad || region || status) && (
           <button
             type="button"
-            className="rounded border px-3 py-1.5 text-sm"
-            style={{ borderColor: "var(--rule)" }}
+            className="btn-ghost"
             onClick={() => {
               setQ("");
               setTrad("");
@@ -257,13 +251,13 @@ export function Hub({
         )}
       </form>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <div
-          role="tablist"
-          aria-label={t("hub.views")}
-          className="inline-flex overflow-hidden rounded border"
-          style={{ borderColor: "var(--rule)" }}
-        >
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div role="tablist" aria-label={t("hub.views")} className="segmented">
+          <span
+            className="segmented-thumb"
+            aria-hidden="true"
+            style={{ transform: `translateX(${VIEWS.indexOf(view) * 100}%)` }}
+          />
           {VIEWS.map((v) => (
             <button
               key={v}
@@ -273,19 +267,14 @@ export function Hub({
               aria-selected={view === v}
               aria-controls="hub-panel"
               onClick={() => setView(v)}
-              className="px-4 py-1.5 text-sm"
-              style={
-                view === v
-                  ? { background: "var(--accent)", color: "var(--bg)" }
-                  : { background: "var(--surface)" }
-              }
+              className="segmented-btn"
             >
               {t(`view.${v}`)}
             </button>
           ))}
         </div>
         <p
-          className="text-sm"
+          className="text-xs tracking-wide uppercase"
           role="status"
           aria-live="polite"
           style={{ color: "var(--text-soft)" }}
@@ -299,7 +288,7 @@ export function Hub({
 
         {view === "cards" && filtered.length > 0 && (
           <>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.slice(0, shown).map((c) => (
                 <li key={c.slug} className="flex">
                   <div className="flex-1">
@@ -309,11 +298,10 @@ export function Hub({
               ))}
             </ul>
             {shown < filtered.length && (
-              <p className="mt-6 text-center">
+              <p className="mt-10 text-center">
                 <button
                   type="button"
-                  className="rounded border px-5 py-2"
-                  style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
+                  className="btn-outline-gold"
                   onClick={() => setShown(shown + PAGE)}
                 >
                   {t("hub.more")} ({filtered.length - shown})
@@ -324,7 +312,7 @@ export function Hub({
         )}
 
         {view === "table" && filtered.length > 0 && (
-          <div className="overflow-x-auto">
+          <div className="glass-panel overflow-x-auto px-4 py-2">
             <table className="w-full text-left text-sm">
               <caption className="sr-only">{t("table.caption")}</caption>
               <thead>
@@ -383,10 +371,7 @@ export function Hub({
 
         {view === "map" && (
           <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-            <div
-              className="h-[70vh] min-h-[420px] overflow-hidden rounded-lg border"
-              style={{ borderColor: "var(--rule)" }}
-            >
+            <div className="glass-panel h-[70vh] min-h-[420px] overflow-hidden">
               <SiteMap
                 points={points}
                 selected={selected}
@@ -394,11 +379,7 @@ export function Hub({
                 className="h-full w-full"
               />
             </div>
-            <aside
-              aria-label={t("map.preview")}
-              className="rounded-lg border p-4"
-              style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-            >
+            <aside aria-label={t("map.preview")} className="glass-panel p-5">
               {sel ? (
                 <div className="space-y-2">
                   <h3

@@ -4,7 +4,7 @@ import { CORRECTIONS_EMAIL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Corrections",
-  description: "How to report an error or suggest a better source for a page in the Tirtha Atlas.",
+  description: "How to report an error or suggest a better source for a page in Tirthamala.",
   alternates: { canonical: "/corrections/" },
 };
 

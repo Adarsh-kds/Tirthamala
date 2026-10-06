@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { distanceKm, slugify, toCard } from "./view.ts";
+import { distanceKm, relatedFor, slugify, toCard } from "./view.ts";
 import type { Site } from "./schema.ts";
+
+describe("relatedFor", () => {
+  const mk = (slug: string, related: object[] = []) => ({ slug, related }) as unknown as Site;
+  it("mirrors one-directional links and inverts part-of", () => {
+    const a = mk("a", [{ siteSlug: "b", relation: "part-of" }]);
+    const b = mk("b");
+    expect(relatedFor(a, [a, b])[0].relation).toBe("part-of");
+    expect(relatedFor(b, [a, b])).toEqual([
+      { siteSlug: "a", relation: "contains", note: undefined },
+    ]);
+  });
+});
 
 describe("view helpers", () => {
   it("slugifies region names", () => {
@@ -17,6 +29,7 @@ describe("view helpers", () => {
     const site = {
       slug: "a",
       name: "A",
+      altNames: [],
       kind: "temple",
       traditions: ["shaiva"],
       deities: [],

@@ -4,8 +4,7 @@ import { getCircuits, getSites } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Sources",
-  description:
-    "The source hierarchy the Tirtha Atlas uses, and every publisher it currently cites.",
+  description: "The source hierarchy Tirthamala uses, and every publisher it currently cites.",
   alternates: { canonical: "/sources/" },
 };
 

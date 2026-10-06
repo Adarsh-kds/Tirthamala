@@ -6,18 +6,18 @@ import { TIER_MIN_WORDS } from "@/lib/tiers";
 export const metadata: Metadata = {
   title: "About the atlas and how we verify",
   description:
-    "How the Tirtha Atlas researches, sources and labels its pages, and what 'verified', 'sources differ' and 'needs review' mean.",
+    "How Tirthamala researches, sources and labels its pages, and what 'verified', 'sources differ' and 'needs review' mean.",
   alternates: { canonical: "/about/" },
 };
 
 export default function About() {
   return (
-    <Page title="About the Tirtha Atlas" crumb="About">
+    <Page title="About Tirthamala" crumb="About">
       <p>
-        The Tirtha Atlas of India is a researched atlas of pilgrimage circuits and sacred sites
-        across India and its neighbourhood. It is written by {PUBLISHER.name} at {PUBLISHER.org}.
-        Every page is original prose, every claim is tied to a cited source, and anything we could
-        not confirm is labelled as such. An honest gap is always preferred to a confident error.
+        Tirthamala is a researched atlas of pilgrimage circuits and sacred sites across India and
+        its neighbourhood. It is written by {PUBLISHER.name} at {PUBLISHER.org}. Every page is
+        original prose, every claim is tied to a cited source, and anything we could not confirm is
+        labelled as such. An honest gap is always preferred to a confident error.
       </p>
       <h2 id="verification">How pages are labelled</h2>
       <ul>

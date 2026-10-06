@@ -32,7 +32,6 @@ const tiro = localFont({
   ],
   variable: "--font-tiro",
   display: "swap",
-  preload: false,
 });
 
 const sourceSans = localFont({
@@ -44,21 +43,21 @@ const sourceSans = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: t("site.title"), template: "%s | Tirtha Atlas" },
+  title: { default: t("site.title"), template: "%s | Tirthamala" },
   description: t("site.description"),
   robots: { index: INDEXING_ON, follow: INDEXING_ON },
-  openGraph: { siteName: "Tirtha Atlas", type: "website", locale: "en_IN" },
+  openGraph: { siteName: "Tirthamala", type: "website", locale: "en_IN" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${tiro.variable} ${sourceSans.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${cormorant.variable} ${tiro.variable} ${sourceSans.variable}`}
+    >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`,
-          }}
-        />
+        <script src="/theme-init.js" async />
       </head>
       <body>
         <a className="skip-link" href="#main">

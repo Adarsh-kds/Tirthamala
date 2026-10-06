@@ -5,11 +5,7 @@ const ICON: Record<string, string> = { verified: "✓", disputed: "≠", "needs-
 
 export function StatusBadge({ status }: { status: string }) {
   return (
-    <span
-      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs"
-      style={{ borderColor: "var(--rule)", color: "var(--text-soft)" }}
-      title={t(`status.${status}.help` as never)}
-    >
+    <span className="status-seal" data-status={status} title={t(`status.${status}.help` as never)}>
       <span aria-hidden="true">{ICON[status]}</span>
       {STATUS_LABEL[status]}
     </span>
@@ -18,7 +14,7 @@ export function StatusBadge({ status }: { status: string }) {
 
 export function AccuracyBadge({ accuracy }: { accuracy: string }) {
   return (
-    <span className="text-xs" style={{ color: "var(--text-soft)" }}>
+    <span className="text-[0.7rem]" style={{ color: "var(--text-soft)" }}>
       {ACCURACY_LABEL[accuracy]}
     </span>
   );
@@ -26,7 +22,7 @@ export function AccuracyBadge({ accuracy }: { accuracy: string }) {
 
 export function TraditionChip({ slug, name }: { slug: string; name: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs">
+    <span className="inline-flex items-center gap-1.5 text-[0.72rem]">
       <span
         aria-hidden="true"
         className="inline-block h-2.5 w-2.5 rounded-full"

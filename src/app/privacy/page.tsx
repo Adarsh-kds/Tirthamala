@@ -3,7 +3,7 @@ import { Page } from "@/components/Prose";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: "The Tirtha Atlas uses no analytics, no advertising and no cookies.",
+  description: "Tirthamala uses no analytics, no advertising and no cookies.",
   alternates: { canonical: "/privacy/" },
 };
 

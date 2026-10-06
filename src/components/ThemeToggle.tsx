@@ -2,36 +2,54 @@
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 
-type Mode = "system" | "light" | "dark";
+type Mode = "light" | "dark";
 
 export function ThemeToggle() {
-  const [mode, setMode] = useState<Mode>("system");
+  const [mode, setMode] = useState<Mode>("dark");
+
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("theme") as Mode | null;
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser storage after hydration
-      if (saved === "light" || saved === "dark") setMode(saved);
-    } catch {}
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the theme set by theme-init.js after hydration
+    setMode(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
   }, []);
-  useEffect(() => {
+
+  const toggle = () => {
+    const next: Mode = mode === "dark" ? "light" : "dark";
+    setMode(next);
     const el = document.documentElement;
-    if (mode === "system") el.removeAttribute("data-theme");
-    else el.setAttribute("data-theme", mode);
+    if (next === "light") el.setAttribute("data-theme", "light");
+    else el.removeAttribute("data-theme");
     try {
-      if (mode === "system") localStorage.removeItem("theme");
-      else localStorage.setItem("theme", mode);
+      if (next === "light") localStorage.setItem("theme", "light");
+      else localStorage.removeItem("theme");
     } catch {}
-  }, [mode]);
-  const next: Mode = mode === "system" ? "dark" : mode === "dark" ? "light" : "system";
+  };
+
   return (
     <button
       type="button"
-      onClick={() => setMode(next)}
-      className="rounded border px-3 py-1 text-sm"
-      style={{ borderColor: "var(--rule)" }}
-      aria-label={`${t("theme.label")}: ${t(`theme.${mode}`)}. ${t("theme.switch")} ${t(`theme.${next}`)}`}
+      onClick={toggle}
+      className="icon-btn"
+      aria-label={mode === "dark" ? t("theme.toLight") : t("theme.toDark")}
+      title={mode === "dark" ? t("theme.toLight") : t("theme.toDark")}
     >
-      {t(`theme.${mode}`)}
+      <svg
+        viewBox="0 0 24 24"
+        className="h-[1.1rem] w-[1.1rem]"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        {mode === "dark" ? (
+          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
+        ) : (
+          <>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+          </>
+        )}
+      </svg>
     </button>
   );
 }

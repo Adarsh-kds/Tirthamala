@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps<"/state/[slug]">): 
   return r
     ? {
         title: `Sacred sites in ${r.name}`,
-        description: `Pilgrimage sites and temples in ${r.name}, listed in the Tirtha Atlas.`,
+        description: `Pilgrimage sites and temples in ${r.name}, listed in Tirthamala.`,
         alternates: { canonical: `/state/${r.slug}/` },
       }
     : {};

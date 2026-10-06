@@ -56,6 +56,8 @@ function parseDir<T>(
     .sort()) {
     const raw = readJson(path.join(dir, f), problems);
     if (raw === undefined) continue;
+    // Tombstone left behind by a merge: {"retired": true, "mergedInto": "<slug>"}.
+    if ((raw as { retired?: unknown } | null)?.retired === true) continue;
     const r = schema.safeParse(raw);
     if (!r.success) {
       for (const i of r.error!.issues)
@@ -102,6 +104,11 @@ export function loadDataset(root: string): Dataset {
   for (const s of sites) {
     if (siteSlugs.has(s.slug)) problems.push(`duplicate site slug ${s.slug}`);
     siteSlugs.add(s.slug);
+    for (const r of s.related) {
+      if (r.siteSlug === s.slug) problems.push(`sites/${s.slug}: related to itself`);
+      else if (!sites.some((o) => o.slug === r.siteSlug))
+        problems.push(`sites/${s.slug}: related site "${r.siteSlug}" does not exist`);
+    }
     for (const t of s.traditions)
       if (!tradSlugs.has(t)) problems.push(`sites/${s.slug}: unknown tradition "${t}"`);
     const { lat, lng, country } = s.location;
