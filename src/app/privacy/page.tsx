@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/Prose";
+import { t } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Privacy",
-  description: "Tirthamala uses no analytics, no advertising and no cookies.",
+  title: t("nav.privacy"),
+  description: t("privacy.description"),
   alternates: { canonical: "/privacy/" },
 };
 
 export default function Privacy() {
   return (
-    <Page title="Privacy" crumb="Privacy">
+    <Page title={t("nav.privacy")} crumb={t("nav.privacy")}>
       <p>
         The atlas is a static website. It has no accounts, no advertising, no analytics and no
         third-party trackers, and it does not set cookies.

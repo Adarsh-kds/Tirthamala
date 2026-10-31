@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t } from "@/lib/i18n";
 import { TraditionIcon } from "../motifs/TraditionIcon";
 import { SectionHeading } from "../motifs/Ornament";
+import { tradColor } from "../Badges";
 
 export function Marquee({ names }: { names: string[] }) {
   const row = (hidden: boolean) => (
@@ -50,7 +51,7 @@ export function CircuitRail({ circuits }: { circuits: CircuitCard[] }) {
               <Link
                 href={`/circuit/${c.slug}/`}
                 className="arch-card"
-                style={{ ["--c" as string]: `var(--trad-${c.tradition})` }}
+                style={{ ["--c" as string]: tradColor(c.tradition) }}
               >
                 <span className="arch-index font-display">{String(i + 1).padStart(2, "0")}</span>
                 <span className="arch-art" aria-hidden="true">
@@ -59,10 +60,7 @@ export function CircuitRail({ circuits }: { circuits: CircuitCard[] }) {
                 <span className="font-display mt-auto text-[1.4rem] leading-tight font-semibold">
                   {c.name}
                 </span>
-                <span
-                  className="mt-2 line-clamp-2 text-[0.75rem] leading-snug"
-                  style={{ color: "var(--text-soft)" }}
-                >
+                <span className="text-text-soft mt-2 line-clamp-2 text-[0.75rem] leading-snug">
                   {c.blurb}
                 </span>
                 <span
@@ -106,7 +104,7 @@ export function TraditionGrid({ traditions }: { traditions: Trad[] }) {
               <Link
                 href={`/tradition/${x.slug}/`}
                 className="trad-tile"
-                style={{ ["--c" as string]: `var(--trad-${x.slug})` }}
+                style={{ ["--c" as string]: tradColor(x.slug) }}
               >
                 <span className="trad-icon" aria-hidden="true">
                   <TraditionIcon slug={x.slug} className="h-7 w-7" />
@@ -115,7 +113,7 @@ export function TraditionGrid({ traditions }: { traditions: Trad[] }) {
                   <span className="font-display block truncate text-lg leading-tight font-semibold">
                     {x.name}
                   </span>
-                  <span className="text-xs" style={{ color: "var(--text-soft)" }}>
+                  <span className="text-text-soft text-xs">
                     {x.count} {t("home.sitesCount")}
                   </span>
                 </span>

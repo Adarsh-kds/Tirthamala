@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { getCards, getRegions } from "@/lib/catalog";
 import { t } from "@/lib/i18n";
 import { slugify } from "@/lib/view";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { CardGrid } from "@/components/CardGrid";
+import { PageHeading } from "@/components/Article";
+import { Hub } from "@/components/hub/Hub";
+import { getTraditions } from "@/lib/data";
 
 export const dynamicParams = false;
 export const generateStaticParams = () => getRegions().map((r) => ({ slug: r.slug }));
@@ -14,8 +15,8 @@ export async function generateMetadata({ params }: PageProps<"/state/[slug]">): 
   const r = getRegions().find((x) => x.slug === slug);
   return r
     ? {
-        title: `Sacred sites in ${r.name}`,
-        description: `Pilgrimage sites and temples in ${r.name}, listed in Tirthamala.`,
+        title: t("state.title", { name: r.name }),
+        description: t("state.description", { name: r.name }),
         alternates: { canonical: `/state/${r.slug}/` },
       }
     : {};
@@ -28,14 +29,22 @@ export default async function StatePage({ params }: PageProps<"/state/[slug]">) 
   const cards = getCards().filter((c) => slugify(c.state) === slug);
   return (
     <main id="main" className="mx-auto max-w-6xl px-4 py-8">
-      <Breadcrumbs items={[{ name: t("nav.regions"), href: "/states/" }, { name: r.name }]} />
-      <h1 className="font-display mt-4 text-4xl font-semibold" style={{ color: "var(--accent)" }}>
-        {r.name}
-      </h1>
-      <p className="mt-2" style={{ color: "var(--text-soft)" }}>
+      <PageHeading
+        crumbs={[{ name: t("nav.regions"), href: "/states/" }, { name: r.name }]}
+        title={r.name}
+      />
+      <p className="text-text-soft mt-2">
         {cards.length} {t("home.sitesCount")}
       </p>
-      <CardGrid cards={cards} />
+      <div className="mt-4">
+        <Hub
+          initial={cards.slice(0, 24)}
+          total={cards.length}
+          traditions={getTraditions().map((y) => ({ slug: y.slug, name: y.name }))}
+          regions={[]}
+          scope={{ region: r.name }}
+        />
+      </div>
     </main>
   );
 }

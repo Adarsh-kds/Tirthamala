@@ -5,4 +5,7 @@ describe("t", () => {
   it("returns the English string for a key", () => {
     expect(t("a11y.skipToContent")).toBe("Skip to content");
   });
+  it("fills placeholders", () => {
+    expect(t("state.title", { name: "Kerala" })).toBe("Sacred sites in Kerala");
+  });
 });

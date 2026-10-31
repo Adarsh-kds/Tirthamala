@@ -172,7 +172,16 @@ const LAMPS = [
   [60, 303],
 ];
 
-export function Temples({ id, lamps = true }: { id: string; lamps?: boolean }) {
+// `still` drops the flag and lamp animations, for copies that sit off-centre or under a filter.
+export function Temples({
+  id,
+  lamps = true,
+  still = false,
+}: {
+  id: string;
+  lamps?: boolean;
+  still?: boolean;
+}) {
   const nagaraShapes = NAGARAS.map(([cx, w, h]) => nagara(cx, B, w, h));
   const mandapaShapes = MANDAPAS.map(([cx, w, h]) => mandapa(cx, B, w, h));
   return (
@@ -194,60 +203,81 @@ export function Temples({ id, lamps = true }: { id: string; lamps?: boolean }) {
           <stop offset="1" stopColor="#ffb14a" stopOpacity="0.85" />
         </linearGradient>
       </defs>
-      <g fill="var(--temple)">
-        {TREES.map(([cx, s]) => (
-          <path key={cx} d={tree(cx, B, s)} opacity="0.92" />
-        ))}
-        <path d={GOPURAM.d} />
-        {mandapaShapes.map((m, i) => (
-          <path key={i} d={m.d} />
-        ))}
-        {nagaraShapes.flat().map((s, i) => (
-          <path key={i} d={s.d} />
-        ))}
-        {CHHATRIS.map(([cx, w, h]) => (
-          <path key={cx} d={chhatri(cx, B, w, h)} />
-        ))}
-        <rect x="0" y={B} width="1440" height="60" />
-      </g>
-      <g stroke="var(--accent-gold)" strokeOpacity="0.16" strokeWidth="1" fill="none">
-        {GOPURAM.ribs.map((d) => (
-          <path key={d} d={d} />
-        ))}
-        {STEPS.map((y) => (
-          <path key={y} d={`M0 ${y}H1440`} />
-        ))}
-      </g>
-      <g fill={`url(#${id}-door)`}>
-        <rect
-          x={GOPURAM.door.x}
-          y={GOPURAM.door.y}
-          width={GOPURAM.door.w}
-          height={GOPURAM.door.h}
-          rx="10"
-        />
-        {mandapaShapes.flatMap((m, i) =>
-          m.windows.map((w, j) => (
-            <rect key={`${i}-${j}`} x={w.x} y={w.y} width="10" height={w.h} rx="5" />
-          )),
-        )}
-      </g>
-      {FLAGS.map((f, i) => (
-        <g key={i}>
-          <path d={f.pole} fill="var(--temple)" />
-          <path d={f.cloth} fill="var(--sindoor)" className="flag-wave" />
+      <g id={`${id}-art`}>
+        <g fill="var(--temple)">
+          {TREES.map(([cx, s]) => (
+            <path key={cx} d={tree(cx, B, s)} opacity="0.92" />
+          ))}
+          <path d={GOPURAM.d} />
+          {mandapaShapes.map((m, i) => (
+            <path key={i} d={m.d} />
+          ))}
+          {nagaraShapes.flat().map((s, i) => (
+            <path key={i} d={s.d} />
+          ))}
+          {CHHATRIS.map(([cx, w, h]) => (
+            <path key={cx} d={chhatri(cx, B, w, h)} />
+          ))}
+          <rect x="0" y={B} width="1440" height="60" />
         </g>
-      ))}
-      {lamps && (
-        <g>
-          {LAMPS.map(([x, y], i) => (
-            <g key={i} className="lamp" style={{ animationDelay: `${(i * 0.37) % 2.4}s` }}>
-              <circle cx={x} cy={y - 2} r="9" fill={`url(#${id}-lamp)`} />
-              <circle cx={x} cy={y - 2} r="1.6" fill="#fff6d8" />
-            </g>
+        <g stroke="var(--accent-gold)" strokeOpacity="0.16" strokeWidth="1" fill="none">
+          {GOPURAM.ribs.map((d) => (
+            <path key={d} d={d} />
+          ))}
+          {STEPS.map((y) => (
+            <path key={y} d={`M0 ${y}H1440`} />
           ))}
         </g>
-      )}
+        <g fill={`url(#${id}-door)`}>
+          <rect
+            x={GOPURAM.door.x}
+            y={GOPURAM.door.y}
+            width={GOPURAM.door.w}
+            height={GOPURAM.door.h}
+            rx="10"
+          />
+          {mandapaShapes.flatMap((m, i) =>
+            m.windows.map((w, j) => (
+              <rect key={`${i}-${j}`} x={w.x} y={w.y} width="10" height={w.h} rx="5" />
+            )),
+          )}
+        </g>
+        {FLAGS.map((f, i) => (
+          <g key={i}>
+            <path d={f.pole} fill="var(--temple)" />
+            <path d={f.cloth} fill="var(--sindoor)" className={still ? undefined : "flag-wave"} />
+          </g>
+        ))}
+        {lamps && (
+          <g>
+            {LAMPS.map(([x, y], i) => (
+              <g
+                key={i}
+                className={still ? undefined : "lamp"}
+                style={still ? undefined : { animationDelay: `${(i * 0.37) % 2.4}s` }}
+              >
+                <circle cx={x} cy={y - 2} r="9" fill={`url(#${id}-lamp)`} />
+                <circle cx={x} cy={y - 2} r="1.6" fill="#fff6d8" />
+              </g>
+            ))}
+          </g>
+        )}
+      </g>
+    </svg>
+  );
+}
+
+// A second copy of an already rendered skyline, drawn by reference instead of repeating the markup.
+export function TemplesCopy({ of }: { of: string }) {
+  return (
+    <svg
+      viewBox="0 0 1440 360"
+      preserveAspectRatio="xMidYMax slice"
+      aria-hidden="true"
+      focusable="false"
+      className="skyline-svg"
+    >
+      <use href={`#${of}-art`} />
     </svg>
   );
 }
@@ -269,29 +299,28 @@ const STARS = Array.from({ length: 130 }, (_, i) => ({
   tw: i % 6 === 0,
 }));
 
+// Twinkling stars sit in their own SVG layers so the fade runs on the compositor.
+const STAR_LAYERS = [
+  STARS.filter((s) => !s.tw),
+  ...[0, 1, 2].map((k) => STARS.filter((s, i) => s.tw && (i % 18) / 6 === k)),
+];
+
 export function Stars() {
-  return (
+  return STAR_LAYERS.map((layer, k) => (
     <svg
+      key={k}
       viewBox="0 0 1440 600"
       preserveAspectRatio="xMidYMin slice"
       aria-hidden="true"
       focusable="false"
-      className="h-full w-full"
+      className={k ? "twinkle h-full w-full" : "h-full w-full"}
+      style={k ? { animationDelay: `${k * 1.3}s` } : undefined}
     >
-      {STARS.map((s, i) => (
-        <circle
-          key={i}
-          cx={s.x}
-          cy={s.y}
-          r={s.r}
-          fill="#fff4d6"
-          opacity={s.o}
-          className={s.tw ? "twinkle" : undefined}
-          style={s.tw ? { animationDelay: `${(i % 7) * 0.6}s` } : undefined}
-        />
+      {layer.map((s, i) => (
+        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#fff4d6" opacity={s.o} />
       ))}
     </svg>
-  );
+  ));
 }
 
 const FAR =

@@ -1,4 +1,4 @@
-import type { Site } from "./schema.ts";
+import type { RELATIONS, Site } from "./schema.ts";
 
 export type Card = {
   slug: string;
@@ -17,6 +17,30 @@ export type Card = {
   status: string;
   summary: string;
 };
+
+export type MapPoint = {
+  slug: string;
+  name: string;
+  lat: number;
+  lng: number;
+  tradition: string;
+  accuracy: string;
+};
+
+// Zero or one map point, so lists can flatMap straight into map data.
+export const toPoints = (c: Card): MapPoint[] =>
+  c.lat === undefined || c.lng === undefined
+    ? []
+    : [
+        {
+          slug: c.slug,
+          name: c.name,
+          lat: c.lat,
+          lng: c.lng,
+          tradition: c.traditions[0],
+          accuracy: c.accuracy,
+        },
+      ];
 
 export function shorten(text: string, max: number) {
   if (text.length <= max) return text;
@@ -53,21 +77,6 @@ export function toCard(s: Site): Card {
   };
 }
 
-export const isPublished = (s: { contentState: string }) => s.contentState === "published";
-
-export const STATUS_LABEL: Record<string, string> = {
-  verified: "Verified",
-  disputed: "Sources differ",
-  "needs-review": "Needs review",
-};
-
-export const ACCURACY_LABEL: Record<string, string> = {
-  exact: "Exact location",
-  approximate: "Approximate location",
-  area: "Area only",
-  unverified: "Location not yet verified",
-};
-
 export function distanceKm(a: [number, number], b: [number, number]) {
   const R = 6371;
   const rad = (d: number) => (d * Math.PI) / 180;
@@ -78,7 +87,11 @@ export function distanceKm(a: [number, number], b: [number, number]) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-export type RelatedView = { siteSlug: string; relation: string; note?: string };
+export type RelatedView = {
+  siteSlug: string;
+  relation: (typeof RELATIONS)[number] | "contains";
+  note?: string;
+};
 
 // Merges explicit links with their mirrors so a link stored on one record shows on both pages.
 export function relatedFor(site: Site, all: Site[]): RelatedView[] {
@@ -96,11 +109,3 @@ export function relatedFor(site: Site, all: Site[]): RelatedView[] {
   }
   return [...out.values()];
 }
-
-export const RELATION_LABEL: Record<string, string> = {
-  claimant: "Another place claiming the same identity",
-  "same-complex": "Another shrine in the same complex",
-  "part-of": "Lies within",
-  contains: "Contains",
-  "possible-duplicate": "May be the same site",
-};

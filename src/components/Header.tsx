@@ -43,7 +43,9 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+  // "/circuits/" also covers "/circuit/<slug>/", and likewise for traditions and states.
+  const isActive = (href: string) =>
+    href === "/" ? path === "/" : path.startsWith(href.replace(/s?\/$/, ""));
 
   return (
     <header className="site-header" data-scrolled={scrolled || open ? "true" : "false"}>
@@ -54,11 +56,7 @@ export function Header() {
             <span className="font-display text-[1.45rem] font-semibold tracking-wide">
               <span className="gold-text">{t("brand.name")}</span>
             </span>
-            <span
-              lang="sa"
-              className="font-sanskrit mt-1 text-[0.78rem]"
-              style={{ color: "var(--text-soft)" }}
-            >
+            <span lang="sa" className="font-sanskrit text-text-soft mt-1 text-[0.78rem]">
               {t("hero.titleSa")}
             </span>
           </span>

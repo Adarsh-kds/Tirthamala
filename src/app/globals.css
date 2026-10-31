@@ -89,7 +89,6 @@ body::after {
   /* ---------- type helpers ---------- */
   .gold-text {
     background: var(--gold-grad);
-    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -129,8 +128,6 @@ body::after {
     border-radius: 20px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    backdrop-filter: blur(14px) saturate(140%);
     box-shadow: var(--glass-shadow);
   }
   .icon-btn {
@@ -203,8 +200,6 @@ body::after {
     padding: 0.28rem 0.8rem;
     border: 1px solid var(--glass-border);
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
     color: var(--text);
     transition:
       border-color 0.3s,
@@ -239,8 +234,7 @@ body::after {
     transition:
       background 0.5s,
       border-color 0.5s,
-      box-shadow 0.5s,
-      backdrop-filter 0.5s;
+      box-shadow 0.5s;
   }
   :root[data-theme="light"] .header-pill {
     background: rgb(255 250 240 / 0.3);
@@ -345,8 +339,6 @@ body::after {
     margin-top: calc(-1 * var(--header-h));
   }
   .hero {
-    --px: 0;
-    --py: 0;
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -374,7 +366,7 @@ body::after {
   .hero-layer {
     position: absolute;
     pointer-events: none;
-    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition: translate 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
   .hero-layer > svg {
     position: absolute;
@@ -387,7 +379,6 @@ body::after {
   .hero-stars {
     inset: 0 0 35% 0;
     z-index: -9;
-    transform: translate3d(calc(var(--px) * 8px), calc(var(--py) * 6px), 0);
   }
   .hero-stars > svg {
     top: 0;
@@ -422,8 +413,7 @@ body::after {
     aspect-ratio: 1;
     color: var(--accent-gold);
     opacity: 0.17;
-    transform: translate(-50%, -50%)
-      translate3d(calc(var(--px) * -16px), calc(var(--py) * -12px), 0);
+    transform: translate(-50%, -50%);
     mask-image: radial-gradient(circle, #000 52%, transparent 72%);
   }
   .hero-mountains {
@@ -432,7 +422,6 @@ body::after {
     bottom: calc(13vh + 1.5rem);
     height: 0;
     z-index: -6;
-    transform: translate3d(calc(var(--px) * 12px), calc(var(--py) * 4px), 0);
   }
   .hero-temples {
     left: 0;
@@ -440,7 +429,6 @@ body::after {
     bottom: 13vh;
     height: 0;
     z-index: -4;
-    transform: translate3d(calc(var(--px) * 22px), 0, 0);
   }
   .hero-river {
     position: absolute;
@@ -509,8 +497,7 @@ body::after {
     width: 70px;
     height: 180px;
     border-radius: 50%;
-    background: radial-gradient(ellipse, rgb(255 236 210 / 0.12), transparent 70%);
-    filter: blur(14px);
+    background: radial-gradient(ellipse, rgb(255 236 210 / 0.1), transparent 70%);
     opacity: 0;
   }
   .hero-embers {
@@ -529,18 +516,17 @@ body::after {
   }
   .hero-cursor {
     position: absolute;
-    left: var(--mx, 50%);
-    top: var(--my, 40%);
+    left: 0;
+    top: 0;
     z-index: -1;
     width: 560px;
     height: 560px;
-    transform: translate(-50%, -50%);
+    margin: -280px 0 0 -280px;
+    translate: 50vw 40vh;
     border-radius: 999px;
     background: radial-gradient(circle, rgb(255 196 120 / 0.11), transparent 62%);
     pointer-events: none;
-    transition:
-      left 0.25s ease-out,
-      top 0.25s ease-out;
+    transition: translate 0.25s ease-out;
   }
   .hero-content {
     position: relative;
@@ -573,6 +559,7 @@ body::after {
   }
   .hero-title .gold-text {
     padding-inline: 0.1em;
+    padding-top: 0.2em;
   }
   .hero-tagline {
     font-family: var(--font-cormorant), serif;
@@ -628,8 +615,6 @@ body::after {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    backdrop-filter: blur(14px) saturate(140%);
   }
   .hero-stats > div {
     padding: 0 1.6rem;
@@ -689,8 +674,6 @@ body::after {
     padding-block: 1.1rem;
     border-block: 1px solid var(--glass-border);
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
     mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
   }
   .marquee-track {
@@ -748,8 +731,6 @@ body::after {
       var(--glass-bg) 58%
     );
     border: 1px solid color-mix(in srgb, var(--c) 32%, var(--glass-border));
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
     box-shadow: var(--glass-shadow);
     color: var(--text);
     overflow: hidden;
@@ -835,8 +816,6 @@ body::after {
     border-radius: 18px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
     color: var(--text);
     transition:
       transform 0.4s,
@@ -871,8 +850,6 @@ body::after {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    backdrop-filter: blur(16px) saturate(150%);
   }
   .field-label {
     display: flex;
@@ -932,8 +909,6 @@ body::after {
     border-radius: 999px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
   }
   .segmented-thumb {
     position: absolute;
@@ -976,8 +951,6 @@ body::after {
       linear-gradient(160deg, color-mix(in srgb, var(--c) 10%, transparent), transparent 55%),
       var(--glass-bg);
     border: 1px solid var(--glass-border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
     box-shadow: var(--glass-shadow);
     overflow: hidden;
     transition:
@@ -1001,6 +974,10 @@ body::after {
     box-shadow:
       0 24px 50px -20px color-mix(in srgb, var(--c) 50%, transparent),
       var(--glass-shadow);
+  }
+  .card-grid > li {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 15rem;
   }
   .site-card-art {
     position: absolute;
@@ -1136,10 +1113,8 @@ body::after {
     scroll-behavior: smooth;
   }
   .mandala-spin {
+    will-change: transform;
     animation: mandala-turn 240s linear infinite;
-  }
-  .hero-om {
-    animation: om-breathe 7s ease-in-out infinite;
   }
   .hero-in {
     opacity: 0;
@@ -1181,9 +1156,6 @@ body::after {
   .marquee:hover .marquee-track {
     animation-play-state: paused;
   }
-  .gold-text {
-    animation: shimmer 9s ease-in-out infinite alternate;
-  }
   @supports (animation-timeline: scroll()) {
     .hero-content {
       animation: hero-out linear both;
@@ -1209,13 +1181,7 @@ body::after {
   }
 }
 @keyframes om-breathe {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 18px rgb(255 190 100 / 0.45));
-    transform: scale(1);
-  }
   50% {
-    filter: drop-shadow(0 0 34px rgb(255 190 100 / 0.8));
     transform: scale(1.04);
   }
 }
@@ -1223,12 +1189,10 @@ body::after {
   from {
     opacity: 0;
     transform: translateY(22px);
-    filter: blur(6px);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 @keyframes twinkle {
@@ -1303,11 +1267,6 @@ body::after {
     transform: translateX(-50%);
   }
 }
-@keyframes shimmer {
-  to {
-    background-position: 100% 0;
-  }
-}
 @keyframes hero-out {
   to {
     opacity: 0;
@@ -1316,7 +1275,7 @@ body::after {
 }
 @keyframes sink {
   to {
-    translate: 0 6vh;
+    transform: translateY(6vh);
   }
 }
 @keyframes reveal {

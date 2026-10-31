@@ -1,168 +1,187 @@
 "use client";
 import Link from "next/link";
-import MiniSearch from "minisearch";
+import dynamic from "next/dynamic";
+import type MiniSearch from "minisearch";
 import { useEffect, useMemo, useState } from "react";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type SortingState,
-} from "@tanstack/react-table";
 import { t } from "@/lib/i18n";
-import type { Card } from "@/lib/view";
+import { toPoints, type Card } from "@/lib/view";
 import { SiteCard } from "../SiteCard";
 import { StatusBadge, TraditionChip } from "../Badges";
+import { Legend } from "../map/Legend";
 import SiteMap from "../map/MapLoader";
+
+const HubTable = dynamic(() => import("./HubTable"));
 
 type View = "cards" | "table" | "map";
 type Trad = { slug: string; name: string };
+type Filters = { q: string; tradition: string; region: string; status: string };
+type Scope = { tradition?: string; region?: string };
+type Select = { key: keyof Filters; label: string; options: [string, string][] };
 const VIEWS: View[] = ["cards", "table", "map"];
 const PAGE = 24;
+const EMPTY: Filters = { q: "", tradition: "", region: "", status: "" };
 
+function buildIndex(Search: typeof MiniSearch<Card>, cards: Card[]) {
+  const ms = new Search({
+    fields: ["name", "altNames", "deities", "place", "summary"],
+    storeFields: [],
+    idField: "slug",
+    extractField: (d, f) =>
+      f === "altNames"
+        ? (d.altNames ?? []).join(" ")
+        : f === "deities"
+          ? d.deities.join(" ")
+          : f === "place"
+            ? [d.city, d.state].join(" ")
+            : (d as never)[f],
+    searchOptions: { prefix: true, fuzzy: 0.2, boost: { name: 3, altNames: 2 } },
+  });
+  ms.addAll(cards);
+  return ms;
+}
+
+const inScope = (c: Card, s: Scope) =>
+  (!s.tradition || c.traditions.includes(s.tradition)) && (!s.region || c.state === s.region);
+
+// `initial` is the server-rendered first page; the full list loads from /cards.json only when needed.
 export function Hub({
-  cards,
+  initial,
+  total,
   traditions,
   regions,
+  scope = {},
   initialView = "cards",
 }: {
-  cards: Card[];
+  initial: Card[];
+  total: number;
   traditions: Trad[];
   regions: { name: string }[];
+  scope?: Scope;
   initialView?: View;
 }) {
   const [view, setView] = useState<View>(initialView);
-  const [q, setQ] = useState("");
-  const [trad, setTrad] = useState("");
-  const [region, setRegion] = useState("");
-  const [status, setStatus] = useState("");
+  const [f, setF] = useState<Filters>(EMPTY);
   const [shown, setShown] = useState(PAGE);
   const [selected, setSelected] = useState<string | null>(null);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [all, setAll] = useState<Card[] | null>(null);
+  const [search, setSearch] = useState<{ S: typeof MiniSearch<Card> } | null>(null);
+
+  const update = (patch: Partial<Filters>) => {
+    setF((cur) => ({ ...cur, ...patch }));
+    setShown(PAGE);
+  };
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const v = p.get("view") as View | null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring state from the URL after hydration
     if (v && VIEWS.includes(v)) setView(v);
-    setQ(p.get("q") ?? "");
-    setTrad(p.get("tradition") ?? "");
-    setRegion(p.get("region") ?? "");
-    setStatus(p.get("status") ?? "");
+    setF({
+      q: p.get("q") ?? "",
+      tradition: p.get("tradition") ?? "",
+      region: p.get("region") ?? "",
+      status: p.get("status") ?? "",
+    });
     setSelected(p.get("site"));
   }, []);
 
   useEffect(() => {
     const p = new URLSearchParams();
     if (view !== initialView) p.set("view", view);
-    if (q) p.set("q", q);
-    if (trad) p.set("tradition", trad);
-    if (region) p.set("region", region);
-    if (status) p.set("status", status);
+    for (const [k, v] of Object.entries(f)) if (v) p.set(k, v);
     if (selected && view === "map") p.set("site", selected);
     const qs = p.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
-  }, [view, q, trad, region, status, selected, initialView]);
+  }, [view, f, selected, initialView]);
 
   useEffect(() => {
     const onSearch = (e: Event) => {
-      setQ((e as CustomEvent<string>).detail ?? "");
-      setView("cards");
+      const q = (e as CustomEvent<string>).detail ?? "";
+      setF((cur) => ({ ...cur, q }));
       setShown(PAGE);
+      setView("cards");
     };
     window.addEventListener("atlas:search", onSearch);
     return () => window.removeEventListener("atlas:search", onSearch);
   }, []);
 
+  const query = f.q.trim();
+  const filtering = Boolean(query || f.tradition || f.region || f.status);
+  const needAll = filtering || view !== "cards" || shown > initial.length;
+  useEffect(() => {
+    if (!needAll || all) return;
+    let live = true;
+    fetch("/cards.json")
+      .then((r) => r.json() as Promise<Card[]>)
+      .then((list) => live && setAll(list));
+    return () => {
+      live = false;
+    };
+  }, [needAll, all]);
+
+  // MiniSearch loads only after the first search, keeping first load light.
+  useEffect(() => {
+    if (!query || search) return;
+    import("minisearch").then(({ default: S }) => setSearch({ S }));
+  }, [query, search]);
+
+  const { tradition: scopeTrad, region: scopeRegion } = scope;
+  const cards = useMemo(
+    () =>
+      all ? all.filter((c) => inScope(c, { tradition: scopeTrad, region: scopeRegion })) : initial,
+    [all, initial, scopeTrad, scopeRegion],
+  );
+  const index = useMemo(
+    () => (search && all ? buildIndex(search.S, cards) : null),
+    [search, all, cards],
+  );
+
   const tradName = useMemo(() => new Map(traditions.map((x) => [x.slug, x.name])), [traditions]);
   const nameOf = (s: string) => tradName.get(s) ?? s;
 
-  const hasQuery = q.trim().length > 0;
-  // The search index is built only once someone searches, keeping first load light.
-  const index = useMemo(() => {
-    if (!hasQuery) return null;
-    const ms = new MiniSearch<Card>({
-      fields: ["name", "altText", "deitiesText", "place", "summary"],
-      storeFields: [],
-      idField: "slug",
-      extractField: (d, f) =>
-        f === "deitiesText"
-          ? d.deities.join(" ")
-          : f === "place"
-            ? [d.city, d.state].join(" ")
-            : (d as never)[f],
-      searchOptions: { prefix: true, fuzzy: 0.2, boost: { name: 3, altText: 2 } },
-    });
-    ms.addAll(cards);
-    return ms;
-  }, [cards, hasQuery]);
-
   const filtered = useMemo(() => {
     let list = cards;
-    if (q.trim() && index) {
-      const ids = new Set(index.search(q.trim()).map((r) => r.id as string));
+    if (query && index) {
+      const ids = new Set(index.search(query).map((r) => r.id as string));
       list = list.filter((c) => ids.has(c.slug));
+    } else if (query) {
+      const needle = query.toLowerCase();
+      list = list.filter((c) =>
+        [c.name, ...(c.altNames ?? [])].some((n) => n.toLowerCase().includes(needle)),
+      );
     }
-    if (trad) list = list.filter((c) => c.traditions.includes(trad));
-    if (region) list = list.filter((c) => c.state === region);
-    if (status) list = list.filter((c) => c.status === status);
+    if (f.tradition) list = list.filter((c) => c.traditions.includes(f.tradition));
+    if (f.region) list = list.filter((c) => c.state === f.region);
+    if (f.status) list = list.filter((c) => c.status === f.status);
     return list;
-  }, [cards, index, q, trad, region, status]);
+  }, [cards, index, query, f.tradition, f.region, f.status]);
 
-  const points = useMemo(
-    () =>
-      filtered
-        .filter((c) => c.lat !== undefined && c.lng !== undefined)
-        .map((c) => ({
-          slug: c.slug,
-          name: c.name,
-          lat: c.lat!,
-          lng: c.lng!,
-          tradition: c.traditions[0],
-          accuracy: c.accuracy,
-        })),
-    [filtered],
-  );
+  const points = useMemo(() => filtered.flatMap(toPoints), [filtered]);
   const sel = selected ? filtered.find((c) => c.slug === selected) : undefined;
 
-  const col = createColumnHelper<Card>();
-  const columns = useMemo(
-    () => [
-      col.accessor("name", {
-        header: t("table.name"),
-        cell: (i) => (
-          <Link
-            href={`/site/${i.row.original.slug}/`}
-            className="underline"
-            style={{ color: "var(--accent)" }}
-          >
-            {i.getValue()}
-          </Link>
-        ),
-      }),
-      col.accessor((r) => r.traditions.map(nameOf).join(", "), {
-        id: "tradition",
-        header: t("table.tradition"),
-      }),
-      col.accessor("state", { header: t("table.region") }),
-      col.accessor("kind", { header: t("table.kind") }),
-      col.accessor("status", {
-        header: t("table.status"),
-        cell: (i) => <StatusBadge status={i.getValue()} />,
-      }),
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tradName],
-  );
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
-    data: filtered,
-    columns,
-    state: { sorting },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
+  const choices: Select[] = [
+    {
+      key: "tradition",
+      label: t("hub.tradition"),
+      options: traditions.map((x): [string, string] => [x.slug, x.name]),
+    },
+    {
+      key: "region",
+      label: t("hub.region"),
+      options: regions.map((x): [string, string] => [x.name, x.name]),
+    },
+    {
+      key: "status",
+      label: t("hub.verification"),
+      options: [
+        ["verified", t("status.verified")],
+        ["disputed", t("status.disputed")],
+        ["needs-review", t("status.needs-review")],
+      ],
+    },
+  ];
+  // A scoped Hub (one tradition or state) hides the filter that would contradict its scope.
+  const selects = choices.filter((x) => !(x.key in scope && scope[x.key as keyof Scope]));
 
   return (
     <section aria-labelledby="hub-title">
@@ -174,78 +193,31 @@ export function Hub({
           {t("hub.search")}
           <input
             type="search"
-            value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setShown(PAGE);
-            }}
+            value={f.q}
+            onChange={(e) => update({ q: e.target.value })}
             className="field"
             placeholder={t("hub.searchPlaceholder")}
           />
         </label>
-        <label className="field-label">
-          {t("hub.tradition")}
-          <select
-            value={trad}
-            onChange={(e) => {
-              setTrad(e.target.value);
-              setShown(PAGE);
-            }}
-            className="field"
-          >
-            <option value="">{t("hub.all")}</option>
-            {traditions.map((x) => (
-              <option key={x.slug} value={x.slug}>
-                {x.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field-label">
-          {t("hub.region")}
-          <select
-            value={region}
-            onChange={(e) => {
-              setRegion(e.target.value);
-              setShown(PAGE);
-            }}
-            className="field"
-          >
-            <option value="">{t("hub.all")}</option>
-            {regions.map((x) => (
-              <option key={x.name} value={x.name}>
-                {x.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field-label">
-          {t("hub.verification")}
-          <select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setShown(PAGE);
-            }}
-            className="field"
-          >
-            <option value="">{t("hub.all")}</option>
-            <option value="verified">{t("status.verified")}</option>
-            <option value="disputed">{t("status.disputed")}</option>
-            <option value="needs-review">{t("status.needs-review")}</option>
-          </select>
-        </label>
-        {(q || trad || region || status) && (
-          <button
-            type="button"
-            className="btn-ghost"
-            onClick={() => {
-              setQ("");
-              setTrad("");
-              setRegion("");
-              setStatus("");
-            }}
-          >
+        {selects.map((s) => (
+          <label key={s.key} className="field-label">
+            {s.label}
+            <select
+              value={f[s.key]}
+              onChange={(e) => update({ [s.key]: e.target.value })}
+              className="field"
+            >
+              <option value="">{t("hub.all")}</option>
+              {s.options.map(([value, name]) => (
+                <option key={value} value={value}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ))}
+        {Object.values(f).some(Boolean) && (
+          <button type="button" className="btn-ghost" onClick={() => update(EMPTY)}>
             {t("hub.clear")}
           </button>
         )}
@@ -274,21 +246,20 @@ export function Hub({
           ))}
         </div>
         <p
-          className="text-xs tracking-wide uppercase"
+          className="text-text-soft text-xs tracking-wide uppercase"
           role="status"
           aria-live="polite"
-          style={{ color: "var(--text-soft)" }}
         >
-          {filtered.length} {t("hub.results")}
+          {all || !filtering ? (all ? filtered.length : total) : "…"} {t("hub.results")}
         </p>
       </div>
 
       <div id="hub-panel" role="tabpanel" aria-labelledby={`tab-${view}`} className="mt-4">
-        {filtered.length === 0 && <p>{t("hub.empty")}</p>}
+        {filtered.length === 0 && (all || !filtering) && <p>{t("hub.empty")}</p>}
 
         {view === "cards" && filtered.length > 0 && (
           <>
-            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="card-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.slice(0, shown).map((c) => (
                 <li key={c.slug} className="flex">
                   <div className="flex-1">
@@ -297,77 +268,21 @@ export function Hub({
                 </li>
               ))}
             </ul>
-            {shown < filtered.length && (
+            {shown < (all ? filtered.length : total) && (
               <p className="mt-10 text-center">
                 <button
                   type="button"
                   className="btn-outline-gold"
                   onClick={() => setShown(shown + PAGE)}
                 >
-                  {t("hub.more")} ({filtered.length - shown})
+                  {t("hub.more")} ({(all ? filtered.length : total) - shown})
                 </button>
               </p>
             )}
           </>
         )}
 
-        {view === "table" && filtered.length > 0 && (
-          <div className="glass-panel overflow-x-auto px-4 py-2">
-            <table className="w-full text-left text-sm">
-              <caption className="sr-only">{t("table.caption")}</caption>
-              <thead>
-                {table.getHeaderGroups().map((hg) => (
-                  <tr key={hg.id} className="border-b" style={{ borderColor: "var(--rule)" }}>
-                    {hg.headers.map((h) => (
-                      <th
-                        key={h.id}
-                        scope="col"
-                        className="py-2 pr-4"
-                        aria-sort={
-                          h.column.getIsSorted() === "asc"
-                            ? "ascending"
-                            : h.column.getIsSorted() === "desc"
-                              ? "descending"
-                              : "none"
-                        }
-                      >
-                        <button
-                          type="button"
-                          onClick={h.column.getToggleSortingHandler()}
-                          className="font-semibold"
-                        >
-                          {flexRender(h.column.columnDef.header, h.getContext())}
-                          <span aria-hidden="true">
-                            {h.column.getIsSorted() === "asc"
-                              ? " ▲"
-                              : h.column.getIsSorted() === "desc"
-                                ? " ▼"
-                                : ""}
-                          </span>
-                        </button>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="border-b align-top"
-                    style={{ borderColor: "var(--rule)" }}
-                  >
-                    {r.getVisibleCells().map((c) => (
-                      <td key={c.id} className="py-2 pr-4">
-                        {flexRender(c.column.columnDef.cell, c.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        {view === "table" && filtered.length > 0 && <HubTable cards={filtered} nameOf={nameOf} />}
 
         {view === "map" && (
           <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
@@ -382,13 +297,8 @@ export function Hub({
             <aside aria-label={t("map.preview")} className="glass-panel p-5">
               {sel ? (
                 <div className="space-y-2">
-                  <h3
-                    className="font-display text-xl font-semibold"
-                    style={{ color: "var(--accent)" }}
-                  >
-                    {sel.name}
-                  </h3>
-                  <p className="text-sm" style={{ color: "var(--text-soft)" }}>
+                  <h3 className="font-display text-accent text-xl font-semibold">{sel.name}</h3>
+                  <p className="text-text-soft text-sm">
                     {[sel.city, sel.state].filter(Boolean).join(", ")}
                   </p>
                   <p className="text-sm">{sel.summary}</p>
@@ -408,43 +318,14 @@ export function Hub({
                 <p className="text-sm">{t("map.select")}</p>
               )}
               <Legend />
-              <p className="mt-3 text-xs" style={{ color: "var(--text-soft)" }}>
+              <p className="text-text-soft mt-3 text-xs">
                 {filtered.length - points.length} {t("map.unlocated")}
               </p>
-              <p className="mt-2 text-xs" style={{ color: "var(--text-soft)" }}>
-                {t("map.a11yNote")}
-              </p>
+              <p className="text-text-soft mt-2 text-xs">{t("map.a11yNote")}</p>
             </aside>
           </div>
         )}
       </div>
     </section>
-  );
-}
-
-export function Legend() {
-  return (
-    <div
-      className="mt-4 border-t pt-3 text-xs"
-      style={{ borderColor: "var(--rule)", color: "var(--text-soft)" }}
-    >
-      <p className="flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className="inline-block h-3 w-3 rounded-full"
-          style={{ background: "var(--text-soft)" }}
-        />{" "}
-        {t("legend.exact")}
-      </p>
-      <p className="mt-1 flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className="inline-block h-3 w-3 rounded-full border-2"
-          style={{ borderColor: "var(--text-soft)" }}
-        />{" "}
-        {t("legend.approx")}
-      </p>
-      <p className="mt-1">{t("legend.colour")}</p>
-    </div>
   );
 }

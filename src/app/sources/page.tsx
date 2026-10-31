@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/Prose";
 import { getCircuits, getSites } from "@/lib/data";
+import { t } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Sources",
-  description: "The source hierarchy Tirthamala uses, and every publisher it currently cites.",
+  title: t("nav.sources"),
+  description: t("sources.description"),
   alternates: { canonical: "/sources/" },
 };
 
@@ -25,7 +26,7 @@ export default function Sources() {
   }
   const rows = [...counts.entries()].sort((a, b) => b[1].n - a[1].n);
   return (
-    <Page title="Sources" crumb="Sources">
+    <Page title={t("nav.sources")} crumb={t("nav.sources")}>
       <h2>Source hierarchy</h2>
       <ul>
         <li>
@@ -52,23 +53,23 @@ export default function Sources() {
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <caption className="sr-only">Cited source domains</caption>
+          <caption className="sr-only">{t("sources.caption")}</caption>
           <thead>
             <tr>
               <th scope="col" className="py-1 pr-4">
-                Domain
+                {t("sources.domain")}
               </th>
               <th scope="col" className="py-1 pr-4">
-                Citations
+                {t("sources.citations")}
               </th>
               <th scope="col" className="py-1">
-                Kinds
+                {t("sources.kinds")}
               </th>
             </tr>
           </thead>
           <tbody>
             {rows.map(([host, v]) => (
-              <tr key={host} className="border-t" style={{ borderColor: "var(--rule)" }}>
+              <tr key={host} className="border-rule border-t">
                 <td className="py-1 pr-4">{host}</td>
                 <td className="py-1 pr-4">{v.n}</td>
                 <td className="py-1">{[...v.types].join(", ")}</td>

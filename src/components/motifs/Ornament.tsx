@@ -51,11 +51,7 @@ export function SectionHeading({
         <span className="gold-text">{title}</span>
       </h2>
       {c && <Divider className="mt-4" />}
-      {lede && (
-        <p className="mt-4 text-[0.95rem]" style={{ color: "var(--text-soft)" }}>
-          {lede}
-        </p>
-      )}
+      {lede && <p className="text-text-soft mt-4 text-[0.95rem]">{lede}</p>}
     </header>
   );
 }

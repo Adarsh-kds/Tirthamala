@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import { Page } from "@/components/Prose";
 import { PUBLISHER, BOUNDARY_NOTE } from "@/lib/site-config";
 import { TIER_MIN_WORDS } from "@/lib/tiers";
+import { t } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "About the atlas and how we verify",
-  description:
-    "How Tirthamala researches, sources and labels its pages, and what 'verified', 'sources differ' and 'needs review' mean.",
+  title: t("about.metaTitle"),
+  description: t("about.description"),
   alternates: { canonical: "/about/" },
 };
 
 export default function About() {
   return (
-    <Page title="About Tirthamala" crumb="About">
+    <Page title={t("about.title")} crumb={t("nav.about")}>
       <p>
         Tirthamala is a researched atlas of pilgrimage circuits and sacred sites across India and
         its neighbourhood. It is written by {PUBLISHER.name} at {PUBLISHER.org}. Every page is

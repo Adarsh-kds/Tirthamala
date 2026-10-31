@@ -3,17 +3,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import * as maplibregl from "maplibre-gl";
 import { useEffect, useRef } from "react";
 import { t } from "@/lib/i18n";
+import type { MapPoint } from "@/lib/view";
 
 maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
-export type MapPoint = {
-  slug: string;
-  name: string;
-  lat: number;
-  lng: number;
-  tradition: string;
-  accuracy: string;
-};
 export type MapRoute = { slug: string; name: string; coords: [number, number][] };
 
 type Props = {
@@ -25,33 +18,14 @@ type Props = {
   className?: string;
 };
 
-const TRADS = [
-  "shaiva",
-  "shakta",
-  "vaishnava",
-  "ganapatya",
-  "kaumara",
-  "ayyappa",
-  "saura",
-  "navagraha",
-  "dattatreya",
-  "jain",
-  "buddhist",
-  "sikh",
-  "islamic",
-  "christian",
-  "parsi",
-  "other",
-];
+type Palette = ReturnType<typeof palette>;
 
 function palette() {
   const cs = getComputedStyle(document.documentElement);
   const v = (n: string) => cs.getPropertyValue(n).trim();
-  const trad: unknown[] = ["match", ["get", "tradition"]];
-  for (const k of TRADS) trad.push(k, v(`--trad-${k}`) || "#444");
-  trad.push(v("--trad-other") || "#444");
+  const other = v("--trad-other") || "#888";
   return {
-    trad,
+    trad: (slug: string) => v(`--trad-${slug}`) || other,
     bg: v("--bg"),
     surface: v("--surface"),
     text: v("--text"),
@@ -62,28 +36,29 @@ function palette() {
 
 const fc = (features: object[]) => ({ type: "FeatureCollection", features }) as never;
 
-function pointsGeo(points: MapPoint[]) {
-  return fc(
-    points.map((p) => ({
+const pointsGeo = (points: MapPoint[], p: Palette) =>
+  fc(
+    points.map((pt) => ({
       type: "Feature",
-      properties: {
-        slug: p.slug,
-        name: p.name,
-        tradition: TRADS.includes(p.tradition) ? p.tradition : "other",
-        exact: p.accuracy === "exact" ? 1 : 0,
-      },
-      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+      properties: { slug: pt.slug, color: p.trad(pt.tradition), exact: pt.accuracy === "exact" },
+      geometry: { type: "Point", coordinates: [pt.lng, pt.lat] },
     })),
   );
-}
-function routesGeo(routes: MapRoute[]) {
-  return fc(
+
+const routesGeo = (routes: MapRoute[]) =>
+  fc(
     routes.map((r) => ({
       type: "Feature",
-      properties: { slug: r.slug, name: r.name },
+      properties: { slug: r.slug },
       geometry: { type: "LineString", coordinates: r.coords },
     })),
   );
+
+function fitTo(m: maplibregl.Map, points: MapPoint[]) {
+  if (!points.length) return;
+  const b = new maplibregl.LngLatBounds();
+  points.forEach((pt) => b.extend([pt.lng, pt.lat]));
+  m.fitBounds(b, { padding: 50, maxZoom: 9, duration: 0 });
 }
 
 export default function SiteMap({
@@ -96,6 +71,7 @@ export default function SiteMap({
 }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const sync = useRef<(() => void) | null>(null);
   const ready = useRef(false);
   const latest = useRef({ points, routes, selected, onSelect });
   useEffect(() => {
@@ -104,7 +80,7 @@ export default function SiteMap({
 
   useEffect(() => {
     if (!el.current) return;
-    const p = palette();
+    let p = palette();
     const m = new maplibregl.Map({
       container: el.current,
       style: {
@@ -149,17 +125,20 @@ export default function SiteMap({
     map.current = m;
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 
-    const apply = () => {
+    const siteColor = () =>
+      ["case", ["get", "exact"], ["get", "color"], p.bg] as maplibregl.ExpressionSpecification;
+
+    sync.current = () => {
       if (!ready.current) return;
       const { points: pts, routes: rts, selected: sel } = latest.current;
-      (m.getSource("sites") as maplibregl.GeoJSONSource).setData(pointsGeo(pts));
+      (m.getSource("sites") as maplibregl.GeoJSONSource).setData(pointsGeo(pts, p));
       (m.getSource("routes") as maplibregl.GeoJSONSource).setData(routesGeo(rts));
       m.setFilter("selected", ["==", ["get", "slug"], sel ?? ""]);
     };
-    (m as unknown as { _apply: () => void })._apply = apply;
 
     m.on("load", () => {
-      m.addSource("routes", { type: "geojson", data: routesGeo(latest.current.routes) });
+      const { points: pts, routes: rts } = latest.current;
+      m.addSource("routes", { type: "geojson", data: routesGeo(rts) });
       m.addLayer({
         id: "routes",
         type: "line",
@@ -171,16 +150,16 @@ export default function SiteMap({
           "line-opacity": 0.8,
         },
       });
-      m.addSource("sites", { type: "geojson", data: pointsGeo(latest.current.points) });
+      m.addSource("sites", { type: "geojson", data: pointsGeo(pts, p) });
       m.addLayer({
         id: "sites",
         type: "circle",
         source: "sites",
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 3.5, 8, 7, 12, 10],
-          "circle-color": ["case", ["==", ["get", "exact"], 1], p.trad as never, p.bg],
-          "circle-stroke-color": p.trad as never,
-          "circle-stroke-width": ["case", ["==", ["get", "exact"], 1], 1.5, 2.5],
+          "circle-color": siteColor(),
+          "circle-stroke-color": ["get", "color"],
+          "circle-stroke-width": ["case", ["get", "exact"], 1.5, 2.5],
         },
       });
       m.addLayer({
@@ -202,57 +181,38 @@ export default function SiteMap({
       m.on("mouseenter", "sites", () => (m.getCanvas().style.cursor = "pointer"));
       m.on("mouseleave", "sites", () => (m.getCanvas().style.cursor = ""));
       ready.current = true;
-      apply();
-      if (fit === "points") fitPoints();
+      sync.current?.();
+      if (fit === "points") fitTo(m, latest.current.points);
     });
-
-    const fitPoints = () => {
-      const pts = latest.current.points;
-      if (!pts.length) return;
-      const b = new maplibregl.LngLatBounds();
-      pts.forEach((pt) => b.extend([pt.lng, pt.lat]));
-      m.fitBounds(b, { padding: 50, maxZoom: 9, duration: 0 });
-    };
 
     const recolor = () => {
       if (!ready.current) return;
-      const q = palette();
-      m.setPaintProperty("bg", "background-color", q.bg);
-      m.setPaintProperty("land", "fill-color", q.surface);
-      m.setPaintProperty("border", "line-color", q.rule);
-      m.setPaintProperty("others", "fill-color", q.rule);
-      m.setPaintProperty("routes", "line-color", q.accent);
-      m.setPaintProperty("sites", "circle-color", [
-        "case",
-        ["==", ["get", "exact"], 1],
-        q.trad as never,
-        q.bg,
-      ]);
-      m.setPaintProperty("sites", "circle-stroke-color", q.trad as never);
-      m.setPaintProperty("selected", "circle-stroke-color", q.text);
+      p = palette();
+      m.setPaintProperty("bg", "background-color", p.bg);
+      m.setPaintProperty("land", "fill-color", p.surface);
+      m.setPaintProperty("border", "line-color", p.rule);
+      m.setPaintProperty("others", "fill-color", p.rule);
+      m.setPaintProperty("routes", "line-color", p.accent);
+      m.setPaintProperty("sites", "circle-color", siteColor());
+      m.setPaintProperty("selected", "circle-stroke-color", p.text);
+      sync.current?.();
     };
     const mo = new MutationObserver(recolor);
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener("change", recolor);
     return () => {
       mo.disconnect();
-      mq.removeEventListener("change", recolor);
       m.remove();
       map.current = null;
+      sync.current = null;
       ready.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const m = map.current as (maplibregl.Map & { _apply?: () => void }) | null;
-    m?._apply?.();
-    if (m && ready.current && fit === "points" && points.length) {
-      const b = new maplibregl.LngLatBounds();
-      points.forEach((pt) => b.extend([pt.lng, pt.lat]));
-      m.fitBounds(b, { padding: 50, maxZoom: 9, duration: 0 });
-    }
+    sync.current?.();
+    const m = map.current;
+    if (m && ready.current && fit === "points") fitTo(m, points);
   }, [points, routes, selected, fit]);
 
   useEffect(() => {

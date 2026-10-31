@@ -9,11 +9,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
   const all: Crumb[] = [{ name: t("nav.atlas"), href: "/" }, ...items];
   return (
     <>
-      <nav
-        aria-label={t("nav.breadcrumb")}
-        className="text-sm"
-        style={{ color: "var(--text-soft)" }}
-      >
+      <nav aria-label={t("nav.breadcrumb")} className="text-text-soft text-sm">
         <ol className="flex flex-wrap gap-x-2">
           {all.map((c, i) => (
             <li key={i} className="flex gap-2">

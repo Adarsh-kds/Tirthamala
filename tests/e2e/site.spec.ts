@@ -37,6 +37,12 @@ test("hub search filters and syncs URL", async ({ page }) => {
   await expect(page).toHaveURL(/q=kedarnath/);
 });
 
+test("hub search matches alternative names", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("searchbox", { name: "Search" }).fill("Thiruvayodhi");
+  await expect(page.getByRole("link", { name: "Ayodhya", exact: true }).first()).toBeVisible();
+});
+
 test("view switching shows table and map", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("tab", { name: "Table" }).click();
@@ -85,6 +91,25 @@ test("no third-party requests", async ({ page }) => {
     await page.waitForTimeout(1200);
   }
   expect(external).toEqual([]);
+});
+
+test("new pages open at the top and Back restores the position", async ({ page }) => {
+  const scrollY = () => page.evaluate(() => window.scrollY);
+  await page.goto("/");
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect.poll(scrollY).toBeGreaterThan(1000);
+  await page.locator("footer").getByRole("link", { name: "About" }).click();
+  await page.waitForURL("**/about/");
+  await expect.poll(scrollY).toBe(0);
+  await page.goBack();
+  await expect.poll(scrollY).toBeGreaterThan(1000);
+});
+
+test("links to a section on another page land on that section", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "How pages are verified" }).click();
+  await page.waitForURL("**/about/#verification");
+  await expect(page.getByRole("heading", { name: "How pages are labelled" })).toBeInViewport();
 });
 
 test("skip link is first focusable and works", async ({ page }) => {

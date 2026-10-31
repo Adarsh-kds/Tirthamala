@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { t } from "@/lib/i18n";
 import { BOUNDARY_NOTE, CORRECTIONS_EMAIL, PUBLISHER } from "@/lib/site-config";
-import { Temples } from "./motifs/Skyline";
+import { Temples, TemplesCopy } from "./motifs/Skyline";
 
 const EXPLORE = [
   ["/", "nav.atlas"],
@@ -22,25 +22,19 @@ export function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-skyline" aria-hidden="true">
-        <Temples id="footer-a" />
-        <Temples id="footer-b" />
+        <Temples id="footer" still />
+        <TemplesCopy of="footer" />
       </div>
       <div className="footer-body">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-[0.8rem] md:grid-cols-[1.4fr_1fr_1fr_1.4fr]">
           <div>
             <p className="font-display text-xl font-semibold">
               <span className="gold-text">{t("brand.name")}</span>{" "}
-              <span
-                lang="sa"
-                className="font-sanskrit text-sm"
-                style={{ color: "var(--text-soft)" }}
-              >
+              <span lang="sa" className="font-sanskrit text-text-soft text-sm">
                 {t("hero.titleSa")}
               </span>
             </p>
-            <p className="mt-2 leading-relaxed" style={{ color: "var(--text-soft)" }}>
-              {t("footer.about")}
-            </p>
+            <p className="text-text-soft mt-2 leading-relaxed">{t("footer.about")}</p>
           </div>
           <nav aria-label={t("footer.explore")}>
             <p className="footer-h">{t("footer.explore")}</p>
@@ -66,7 +60,7 @@ export function Footer() {
               ))}
             </ul>
           </nav>
-          <div style={{ color: "var(--text-soft)" }}>
+          <div className="text-text-soft">
             <p className="leading-relaxed">{BOUNDARY_NOTE}</p>
             <p className="mt-3">
               <a className="link-gold" href={`mailto:${CORRECTIONS_EMAIL}`}>
@@ -81,11 +75,7 @@ export function Footer() {
               {t("footer.publisher")} {PUBLISHER.name}, {PUBLISHER.org} · {t("footer.made")}
             </p>
             <p className="flex items-center gap-2">
-              <span
-                lang="sa"
-                className="font-sanskrit text-[0.85rem]"
-                style={{ color: "var(--accent-gold)" }}
-              >
+              <span lang="sa" className="font-sanskrit text-accent-gold text-[0.85rem]">
                 {t("footer.shloka")}
               </span>
               <span aria-hidden="true">·</span>

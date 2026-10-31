@@ -112,7 +112,40 @@ const ICONS: Record<string, ReactNode> = {
   ),
 };
 
-export function TraditionIcon({ slug, className }: { slug: string; className?: string }) {
+const PIN = (
+  <>
+    <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
+    <circle cx="12" cy="10" r="2.3" />
+  </>
+);
+
+// Rendered once in the layout; icons below point at it with <use>, keeping long card grids light.
+export function IconSprite() {
+  return (
+    <svg aria-hidden="true" focusable="false" width="0" height="0" className="absolute">
+      <defs>
+        {Object.entries(ICONS).map(([slug, art]) => (
+          <symbol key={slug} id={`ti-${slug}`} viewBox="0 0 24 24">
+            {art}
+          </symbol>
+        ))}
+        <symbol id="i-pin" viewBox="0 0 24 24">
+          {PIN}
+        </symbol>
+      </defs>
+    </svg>
+  );
+}
+
+function Icon({
+  id,
+  className,
+  strokeWidth,
+}: {
+  id: string;
+  className?: string;
+  strokeWidth: number;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -121,11 +154,19 @@ export function TraditionIcon({ slug, className }: { slug: string; className?: s
       focusable="false"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.4"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {ICONS[slug] ?? ICONS.other}
+      <use href={`#${id}`} />
     </svg>
   );
 }
+
+export const TraditionIcon = ({ slug, className }: { slug: string; className?: string }) => (
+  <Icon id={`ti-${slug in ICONS ? slug : "other"}`} className={className} strokeWidth={1.4} />
+);
+
+export const PinIcon = ({ className }: { className?: string }) => (
+  <Icon id="i-pin" className={className} strokeWidth={1.8} />
+);

@@ -1,17 +1,14 @@
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 
 export default function NotFound() {
   return (
     <main id="main" className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="font-display text-4xl font-semibold" style={{ color: "var(--accent)" }}>
-        This path leads nowhere yet
-      </h1>
-      <p className="mt-4" style={{ color: "var(--text-soft)" }}>
-        The page you looked for does not exist. Return to the atlas and continue from there.
-      </p>
+      <h1 className="font-display text-accent text-4xl font-semibold">{t("notFound.title")}</h1>
+      <p className="text-text-soft mt-4">{t("notFound.body")}</p>
       <p className="mt-6">
         <Link href="/" className="underline">
-          Back to the atlas
+          {t("notFound.back")}
         </Link>
       </p>
     </main>

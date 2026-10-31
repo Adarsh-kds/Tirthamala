@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/Prose";
 import { CORRECTIONS_EMAIL } from "@/lib/site-config";
+import { t } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Corrections",
-  description: "How to report an error or suggest a better source for a page in Tirthamala.",
+  title: t("nav.corrections"),
+  description: t("corrections.description"),
   alternates: { canonical: "/corrections/" },
 };
 
 export default function Corrections() {
   return (
-    <Page title="Corrections" crumb="Corrections">
+    <Page title={t("nav.corrections")} crumb={t("nav.corrections")}>
       <p>
         Accuracy is the point of this atlas. If you find an error, a missing variant, a wrong
         location, or a better source, please write to{" "}

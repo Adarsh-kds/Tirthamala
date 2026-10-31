@@ -70,14 +70,19 @@ export default function Home() {
             title={t("home.atlasTitle")}
             lede={t("home.lede")}
           />
-          <p className="mt-3 text-center text-xs" style={{ color: "var(--text-soft)" }}>
+          <p className="text-text-soft mt-3 text-center text-xs">
             {cards.length} {t("home.sitesCount")} · {published} {t("home.publishedCount")} ·{" "}
             <Link href="/about/#verification" className="link-gold">
               {t("home.howVerified")}
             </Link>
           </p>
           <div className="mt-10">
-            <Hub cards={cards} traditions={traditions} regions={regions} />
+            <Hub
+              initial={cards.slice(0, 24)}
+              total={cards.length}
+              traditions={traditions}
+              regions={regions}
+            />
           </div>
         </div>
       </section>

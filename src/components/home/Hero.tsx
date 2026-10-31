@@ -19,26 +19,26 @@ export function Hero({ chips, stats }: { chips: Chip[]; stats: Stat[] }) {
   return (
     <HeroParallax className="hero">
       <div className="hero-sky" aria-hidden="true" />
-      <div className="hero-layer hero-stars" aria-hidden="true">
+      <div className="hero-layer hero-stars" data-depth="8,6" aria-hidden="true">
         <Stars />
       </div>
       <div className="hero-halo" aria-hidden="true" />
-      <div className="hero-layer hero-mandala" aria-hidden="true">
+      <div className="hero-layer hero-mandala" data-depth="-16,-12" aria-hidden="true">
         <Mandala className="mandala-spin h-full w-full" />
       </div>
-      <div className="hero-layer hero-mountains" aria-hidden="true">
+      <div className="hero-layer hero-mountains" data-depth="12,4" aria-hidden="true">
         <Mountains />
       </div>
       <div className="hero-river" aria-hidden="true">
         <div className="hero-reflection">
-          <Temples id="reflect" lamps={false} />
+          <Temples id="reflect" lamps={false} still />
         </div>
         <span className="float-diya" style={{ left: "18%", animationDelay: "0s" }} />
         <span className="float-diya" style={{ left: "41%", animationDelay: "-6s" }} />
         <span className="float-diya" style={{ left: "63%", animationDelay: "-12s" }} />
         <span className="float-diya" style={{ left: "82%", animationDelay: "-3s" }} />
       </div>
-      <div className="hero-layer hero-temples" aria-hidden="true">
+      <div className="hero-layer hero-temples" data-depth="22,0" aria-hidden="true">
         <Temples id="main" />
       </div>
       <div className="hero-smoke" aria-hidden="true">
@@ -86,7 +86,7 @@ export function Hero({ chips, stats }: { chips: Chip[]; stats: Stat[] }) {
         <div className="hero-in mt-7 w-full max-w-xl" style={{ animationDelay: "0.75s" }}>
           <HeroSearch />
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[0.8rem]">
-            <span style={{ color: "var(--text-soft)" }}>{t("hero.popular")}</span>
+            <span className="text-text-soft">{t("hero.popular")}</span>
             {chips.map((c) => (
               <Link key={c.slug} href={`/circuit/${c.slug}/`} className="chip">
                 {c.name}

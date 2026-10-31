@@ -5,9 +5,7 @@
   --color-ink: #2a1a14;
   --color-ink-soft: #5b4034;
   --color-maroon: #6b1220;
-  --color-kumkum: #a4161a;
   --color-saffron: #a34a06;
-  --color-marigold: #e8a317;
   --color-gold: #8a6416;
   --color-night: #0d0a20;
 
@@ -21,14 +19,11 @@
   --rule: #3a3266;
   --focus: #8db1ff;
 
-  --gold-1: #fdeab4;
-  --gold-2: #e8b44f;
-  --gold-3: #a8701c;
   --gold-grad: linear-gradient(120deg, #fff1c9 0%, #f0c25f 38%, #d8962d 62%, #fbe3a1 100%);
   --sindoor: #e4572e;
   --on-gold: #2a1606;
   --glow: rgb(244 169 80 / 0.38);
-  --glass-bg: rgb(24 19 52 / 0.52);
+  --glass-bg: rgb(24 19 52 / 0.74);
   --glass-strong: rgb(18 14 40 / 0.78);
   --glass-border: rgb(231 196 111 / 0.22);
   --glass-highlight: rgb(255 255 255 / 0.07);
@@ -60,20 +55,12 @@
   --trad-parsi: #b8bcc4;
   --trad-other: #c8c8c8;
 
-  --space-1: 0.25rem;
   --space-2: 0.5rem;
-  --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
 
   --radius-sm: 4px;
   --radius-md: 12px;
   --radius-lg: 22px;
-  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 28px rgb(0 0 0 / 0.35);
-  --reading-width: 68ch;
   --header-h: 5.25rem;
 
   --text-xs: 0.75rem;
@@ -99,13 +86,10 @@
   --rule: #d9c69a;
   --focus: #1c4fd8;
 
-  --gold-1: #8a6416;
-  --gold-2: #a8701c;
-  --gold-3: #6b1220;
   --gold-grad: linear-gradient(120deg, #7a1424 0%, #a34a06 45%, #8a6416 70%, #6b1220 100%);
   --glow: rgb(232 163 23 / 0.28);
   --on-gold: #fffaf0;
-  --glass-bg: rgb(255 250 240 / 0.62);
+  --glass-bg: rgb(255 250 240 / 0.82);
   --glass-strong: rgb(255 250 240 / 0.85);
   --glass-border: rgb(138 100 22 / 0.28);
   --glass-highlight: rgb(255 255 255 / 0.6);
@@ -119,7 +103,6 @@
   --temple: #5a2a1c;
   --water: #e9cfa3;
   --watermark: rgb(107 18 32 / 0.05);
-  --shadow-soft: 0 1px 2px rgb(42 26 20 / 0.08), 0 6px 20px rgb(107 18 32 / 0.08);
 
   --trad-shaiva: #34448a;
   --trad-shakta: #a4161a;

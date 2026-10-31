@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCircuits } from "@/lib/data";
 import { t } from "@/lib/i18n";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { PageHeading } from "@/components/Article";
 import { StatusBadge } from "@/components/Badges";
 
 export const metadata: Metadata = {
-  title: "Pilgrimage circuits",
-  description:
-    "Traditional, regional and editorial pilgrimage circuits of India, with the sites that belong to each.",
+  title: t("circuits.title"),
+  description: t("circuits.description"),
   alternates: { canonical: "/circuits/" },
 };
 
@@ -21,13 +20,8 @@ export default function Circuits() {
   ] as const;
   return (
     <main id="main" className="mx-auto max-w-4xl px-4 py-8">
-      <Breadcrumbs items={[{ name: t("nav.circuits") }]} />
-      <h1 className="font-display mt-4 text-4xl font-semibold" style={{ color: "var(--accent)" }}>
-        {t("nav.circuits")}
-      </h1>
-      <p className="mt-2" style={{ color: "var(--text-soft)" }}>
-        {t("circuits.lede")}
-      </p>
+      <PageHeading crumbs={[{ name: t("nav.circuits") }]} title={t("nav.circuits")} />
+      <p className="text-text-soft mt-2">{t("circuits.lede")}</p>
       {groups.map(([kind, key]) => (
         <section key={kind} className="mt-8">
           <h2 className="font-display text-2xl font-semibold">{t(key)}</h2>
@@ -36,14 +30,10 @@ export default function Circuits() {
               .filter((c) => c.kind === kind)
               .map((c) => (
                 <li key={c.slug}>
-                  <Link
-                    href={`/circuit/${c.slug}/`}
-                    className="underline"
-                    style={{ color: "var(--accent)" }}
-                  >
+                  <Link href={`/circuit/${c.slug}/`} className="text-accent underline">
                     {c.name}
                   </Link>{" "}
-                  <span className="text-sm" style={{ color: "var(--text-soft)" }}>
+                  <span className="text-text-soft text-sm">
                     {c.members.length} {t("circuit.sites")}
                   </span>{" "}
                   <StatusBadge status={c.verification.status} />

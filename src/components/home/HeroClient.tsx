@@ -10,15 +10,23 @@ export function HeroParallax({ children, className }: { children: ReactNode; cla
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const fine = window.matchMedia("(pointer: fine)").matches;
     if (still || !fine) return;
+    // Writing `translate` per layer avoids restyling every SVG node under the hero.
+    const layers = [...el.querySelectorAll<HTMLElement>("[data-depth]")].map((node) => {
+      const [dx, dy] = (node.dataset.depth ?? "0,0").split(",").map(Number);
+      return { node, dx, dy };
+    });
+    const glow = el.querySelector<HTMLElement>(".hero-cursor");
     let raf = 0;
     const onMove = (e: PointerEvent) => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const r = el.getBoundingClientRect();
-        el.style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
-        el.style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
-        el.style.setProperty("--mx", `${(e.clientX - r.left).toFixed(0)}px`);
-        el.style.setProperty("--my", `${(e.clientY - r.top).toFixed(0)}px`);
+        const x = e.clientX - r.left;
+        const y = e.clientY - r.top;
+        const px = x / r.width - 0.5;
+        const py = y / r.height - 0.5;
+        for (const l of layers) l.node.style.translate = `${px * l.dx}px ${py * l.dy}px`;
+        if (glow) glow.style.translate = `${x}px ${y}px`;
       });
     };
     el.addEventListener("pointermove", onMove);
