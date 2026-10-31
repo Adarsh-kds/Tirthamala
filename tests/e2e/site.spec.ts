@@ -112,6 +112,27 @@ test("links to a section on another page land on that section", async ({ page })
   await expect(page.getByRole("heading", { name: "How pages are labelled" })).toBeInViewport();
 });
 
+test("prefetch payloads exist where the router asks for them", async ({ request }) => {
+  for (const url of [
+    "/circuits/__next.circuits.__PAGE__.txt",
+    "/circuit/char-dham/__next.circuit.$d$slug.__PAGE__.txt",
+  ]) {
+    const res = await request.get(url);
+    expect(res.status(), url).toBe(200);
+    expect(res.headers()["content-type"], url).toContain("text/plain");
+  }
+});
+
+test("a visited page opens offline", async ({ page, context }) => {
+  await page.goto("/about/");
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("About");
+  await context.setOffline(false);
+});
+
 test("skip link is first focusable and works", async ({ page }) => {
   await page.goto("/about/");
   await page.keyboard.press("Tab");

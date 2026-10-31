@@ -1,0 +1,2 @@
+/site/vaidyanath-deoghar /site/baidyanath-deoghar/ 301
+/site/vaidyanath-deoghar/* /site/baidyanath-deoghar/:splat 301

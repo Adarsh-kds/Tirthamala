@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import dynamic from "next/dynamic";
 import type MiniSearch from "minisearch";
 import { useEffect, useMemo, useState } from "react";
@@ -309,9 +309,9 @@ export function Hub({
                   </div>
                   <StatusBadge status={sel.status} />
                   <p>
-                    <Link href={`/site/${sel.slug}/`} className="underline">
+                    <IntentLink href={`/site/${sel.slug}/`} className="underline">
                       {t("map.open")}
-                    </Link>
+                    </IntentLink>
                   </p>
                 </div>
               ) : (

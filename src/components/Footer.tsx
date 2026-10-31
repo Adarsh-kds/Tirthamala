@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { t } from "@/lib/i18n";
 import { BOUNDARY_NOTE, CORRECTIONS_EMAIL, PUBLISHER } from "@/lib/site-config";
 import { Temples, TemplesCopy } from "./motifs/Skyline";
@@ -41,9 +41,9 @@ export function Footer() {
             <ul className="mt-3 space-y-1.5">
               {EXPLORE.map(([href, key]) => (
                 <li key={href}>
-                  <Link href={href} className="footer-link">
+                  <IntentLink href={href} className="footer-link">
                     {t(key)}
-                  </Link>
+                  </IntentLink>
                 </li>
               ))}
             </ul>
@@ -53,9 +53,9 @@ export function Footer() {
             <ul className="mt-3 space-y-1.5">
               {PROJECT.map(([href, key]) => (
                 <li key={href}>
-                  <Link href={href} className="footer-link">
+                  <IntentLink href={href} className="footer-link">
                     {t(key)}
-                  </Link>
+                  </IntentLink>
                 </li>
               ))}
             </ul>

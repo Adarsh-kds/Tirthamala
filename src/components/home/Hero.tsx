@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { t } from "@/lib/i18n";
 import { Mandala } from "../motifs/Mandala";
-import { Mountains, Stars, Temples } from "../motifs/Skyline";
+import { Mountains, Stars, Temples, TemplesCopy } from "../motifs/Skyline";
 import { Lotus } from "../motifs/Ornament";
 import { HeroParallax, HeroSearch } from "./HeroClient";
 
@@ -31,7 +31,7 @@ export function Hero({ chips, stats }: { chips: Chip[]; stats: Stat[] }) {
       </div>
       <div className="hero-river" aria-hidden="true">
         <div className="hero-reflection">
-          <Temples id="reflect" lamps={false} still />
+          <TemplesCopy of="main" />
         </div>
         <span className="float-diya" style={{ left: "18%", animationDelay: "0s" }} />
         <span className="float-diya" style={{ left: "41%", animationDelay: "-6s" }} />

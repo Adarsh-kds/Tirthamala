@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { IconSprite } from "@/components/motifs/TraditionIcon";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { MotionGate } from "@/components/MotionGate";
+import { ServiceWorker } from "@/components/ServiceWorker";
 import { INDEXING_ON, SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 const cormorant = localFont({
@@ -67,6 +69,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <IconSprite />
         <ScrollToTop />
+        <MotionGate />
+        <ServiceWorker />
+        <div className="nav-progress" aria-hidden="true" />
         <a className="skip-link" href="#main">
           {t("a11y.skipToContent")}
         </a>

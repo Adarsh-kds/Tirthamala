@@ -3,9 +3,12 @@ import { loadDataset, type Dataset } from "./dataset.ts";
 import type { Circuit, Site } from "./schema.ts";
 
 let cache: Dataset | undefined;
+let loadedAt = 0;
 
 function dataset(): Dataset {
-  if (cache) return cache;
+  // Development must pick up JSON edits that do not trigger module hot reload.
+  if (cache && (process.env.NODE_ENV !== "development" || Date.now() - loadedAt < 1000))
+    return cache;
   const ds = loadDataset(path.join(process.cwd(), "data"));
   if (ds.problems.length) {
     throw new Error(
@@ -13,6 +16,7 @@ function dataset(): Dataset {
     );
   }
   cache = ds;
+  loadedAt = Date.now();
   return ds;
 }
 

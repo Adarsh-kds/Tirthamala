@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { getCircuit, getCircuits, getSite, getTraditions } from "@/lib/data";
 import { INDEXING_ON, SITE_URL } from "@/lib/site-config";
@@ -85,7 +85,7 @@ export default async function CircuitPage({ params }: PageProps<"/circuit/[slug]
           ),
       )}
 
-      <Section id="map" title={t("circuit.map")}>
+      <Section id="map" title={t("circuit.map")} eager>
         {points.length > 0 ? (
           <>
             <div className="border-rule mt-3 h-96 overflow-hidden rounded-lg border">
@@ -108,14 +108,14 @@ export default async function CircuitPage({ params }: PageProps<"/circuit/[slug]
         )}
       </Section>
 
-      <Section id="members" title={t("circuit.members")}>
+      <Section id="members" title={t("circuit.members")} eager>
         <ol className={`mt-3 space-y-3 ${c.ordered ? "list-none" : "list-disc pl-6"}`}>
           {members.map(({ m, s }) => (
-            <li key={s.slug}>
-              <Link href={`/site/${s.slug}/`} className="text-accent underline">
+            <li key={s.slug} className="cv-row">
+              <IntentLink href={`/site/${s.slug}/`} className="text-accent underline">
                 {c.ordered && m.order ? `${m.order}. ` : ""}
                 {s.name}
-              </Link>{" "}
+              </IntentLink>{" "}
               <span className="text-text-soft text-sm">
                 {[s.location.city, s.location.state]
                   .filter((v, i, a) => v && a.indexOf(v) === i)

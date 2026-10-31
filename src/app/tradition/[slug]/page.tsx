@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { getCircuits, getTraditions } from "@/lib/data";
 import { getCards, getRegions } from "@/lib/catalog";
@@ -43,9 +43,9 @@ export default async function TraditionPage({ params }: PageProps<"/tradition/[s
           <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
             {circuits.map((c) => (
               <li key={c.slug}>
-                <Link className="underline" href={`/circuit/${c.slug}/`}>
+                <IntentLink className="underline" href={`/circuit/${c.slug}/`}>
                   {c.name}
-                </Link>
+                </IntentLink>
               </li>
             ))}
           </ul>

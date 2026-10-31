@@ -366,6 +366,7 @@ body::after {
   .hero-layer {
     position: absolute;
     pointer-events: none;
+    will-change: transform, translate;
     transition: translate 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
   .hero-layer > svg {
@@ -1107,7 +1108,51 @@ body::after {
   }
 }
 
+/* Thin bar while a page change is pending; the delay keeps instant navigations from flashing it. */
+.nav-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 70;
+  height: 2px;
+  background: var(--gold-grad);
+  transform-origin: left;
+  transform: scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+[data-navigating] .nav-progress {
+  opacity: 1;
+  transform: scaleX(0.85);
+  transition:
+    opacity 0.2s 0.12s,
+    transform 6s cubic-bezier(0.1, 0.7, 0.2, 1) 0.12s;
+}
+
 /* ---------- motion (only when the visitor allows it) ---------- */
+/* Looping animations stop while their block is off screen (set by MotionGate). */
+[data-offscreen]
+  :is(
+    .mandala-spin,
+    .hero-om,
+    .twinkle,
+    .lamp,
+    .float-diya,
+    .hero-smoke span,
+    .hero-embers span,
+    .scroll-cue,
+    .marquee-track
+  ) {
+  animation-play-state: paused;
+}
+/* Below-the-fold blocks skip layout and paint until they near the viewport. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 18rem;
+}
+.cv-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.5rem;
+}
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
@@ -1130,11 +1175,6 @@ body::after {
   }
   .lamp {
     animation: flicker 2.4s ease-in-out infinite;
-  }
-  .flag-wave {
-    transform-box: fill-box;
-    transform-origin: left center;
-    animation: flag 3.2s ease-in-out infinite;
   }
   .float-diya {
     animation: diya-drift 22s ease-in-out infinite alternate;
@@ -1210,11 +1250,6 @@ body::after {
   }
   60% {
     opacity: 0.92;
-  }
-}
-@keyframes flag {
-  50% {
-    transform: scaleX(0.82) skewY(-4deg);
   }
 }
 @keyframes diya-drift {

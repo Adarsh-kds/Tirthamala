@@ -24,17 +24,20 @@ export function PageHeading({
   );
 }
 
+// Sections render lazily (content-visibility); `eager` is for ones holding a map, which needs real layout.
 export function Section({
   id,
   title,
+  eager,
   children,
 }: {
   id: string;
   title: string;
+  eager?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section id={id} aria-labelledby={`${id}-h`} className="mt-10">
+    <section id={id} aria-labelledby={`${id}-h`} className={eager ? "mt-10" : "cv-auto mt-10"}>
       <h2 id={`${id}-h`} className="font-display text-accent text-2xl font-semibold">
         {title}
       </h2>

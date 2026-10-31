@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -29,11 +29,13 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const top = useRef<HTMLSpanElement>(null);
+
+  // Watching a marker at the page top avoids a scroll listener that forces layout every frame.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const io = new IntersectionObserver(([e]) => setScrolled(!e.isIntersecting));
+    if (top.current) io.observe(top.current);
+    return () => io.disconnect();
   }, []);
 
   useEffect(() => {
@@ -48,28 +50,82 @@ export function Header() {
     href === "/" ? path === "/" : path.startsWith(href.replace(/s?\/$/, ""));
 
   return (
-    <header className="site-header" data-scrolled={scrolled || open ? "true" : "false"}>
-      <div className="header-pill">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-          <BrandMark />
-          <span className="flex flex-col leading-none">
-            <span className="font-display text-[1.45rem] font-semibold tracking-wide">
-              <span className="gold-text">{t("brand.name")}</span>
+    <>
+      <span
+        ref={top}
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-0 h-6 w-px"
+      />
+      <header className="site-header" data-scrolled={scrolled || open ? "true" : "false"}>
+        <div className="header-pill">
+          <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
+            <BrandMark />
+            <span className="flex flex-col leading-none">
+              <span className="font-display text-[1.45rem] font-semibold tracking-wide">
+                <span className="gold-text">{t("brand.name")}</span>
+              </span>
+              <span lang="sa" className="font-sanskrit text-text-soft mt-1 text-[0.78rem]">
+                {t("hero.titleSa")}
+              </span>
             </span>
-            <span lang="sa" className="font-sanskrit text-text-soft mt-1 text-[0.78rem]">
-              {t("hero.titleSa")}
-            </span>
-          </span>
-        </Link>
+          </Link>
 
-        <nav aria-label={t("nav.primary")} className="hidden lg:block">
-          <ul className="flex items-center gap-1 text-[0.85rem]">
+          <nav aria-label={t("nav.primary")} className="hidden lg:block">
+            <ul className="flex items-center gap-1 text-[0.85rem]">
+              {NAV.map(([href, key]) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="nav-link"
+                    aria-current={isActive(href) ? "page" : undefined}
+                  >
+                    {t(key)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              type="button"
+              className="icon-btn lg:hidden"
+              aria-expanded={open}
+              aria-controls="mobile-nav"
+              aria-label={open ? t("nav.close") : t("nav.menu")}
+              onClick={() => setOpen((o) => !o)}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h10" />}
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <nav
+          id="mobile-nav"
+          aria-label={t("nav.primary")}
+          className="mobile-sheet lg:hidden"
+          data-open={open ? "true" : "false"}
+          hidden={!open}
+        >
+          <ul className="flex flex-col gap-1">
             {NAV.map(([href, key]) => (
               <li key={href}>
                 <Link
                   href={href}
-                  className="nav-link"
+                  className="mobile-link"
                   aria-current={isActive(href) ? "page" : undefined}
+                  onClick={() => setOpen(false)}
                 >
                   {t(key)}
                 </Link>
@@ -77,54 +133,7 @@ export function Header() {
             ))}
           </ul>
         </nav>
-
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <button
-            type="button"
-            className="icon-btn lg:hidden"
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? t("nav.close") : t("nav.menu")}
-            onClick={() => setOpen((o) => !o)}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h10" />}
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <nav
-        id="mobile-nav"
-        aria-label={t("nav.primary")}
-        className="mobile-sheet lg:hidden"
-        data-open={open ? "true" : "false"}
-        hidden={!open}
-      >
-        <ul className="flex flex-col gap-1">
-          {NAV.map(([href, key]) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className="mobile-link"
-                aria-current={isActive(href) ? "page" : undefined}
-                onClick={() => setOpen(false)}
-              >
-                {t(key)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </header>
+      </header>
+    </>
   );
 }

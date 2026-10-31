@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { getTraditions } from "@/lib/data";
 import { getCards } from "@/lib/catalog";
 import { t } from "@/lib/i18n";
@@ -20,12 +20,12 @@ export default function Traditions() {
       <ul className="mt-6 space-y-4">
         {getTraditions().map((x) => (
           <li key={x.slug}>
-            <Link
+            <IntentLink
               href={`/tradition/${x.slug}/`}
               className="font-display text-accent text-xl font-semibold underline"
             >
               <TraditionChip slug={x.slug} name={x.name} />
-            </Link>{" "}
+            </IntentLink>{" "}
             <span className="text-text-soft text-sm">
               {cards.filter((c) => c.traditions.includes(x.slug)).length} {t("home.sitesCount")}
             </span>

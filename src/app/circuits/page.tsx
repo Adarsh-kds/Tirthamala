@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { getCircuits } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { PageHeading } from "@/components/Article";
@@ -30,9 +30,9 @@ export default function Circuits() {
               .filter((c) => c.kind === kind)
               .map((c) => (
                 <li key={c.slug}>
-                  <Link href={`/circuit/${c.slug}/`} className="text-accent underline">
+                  <IntentLink href={`/circuit/${c.slug}/`} className="text-accent underline">
                     {c.name}
-                  </Link>{" "}
+                  </IntentLink>{" "}
                   <span className="text-text-soft text-sm">
                     {c.members.length} {t("circuit.sites")}
                   </span>{" "}

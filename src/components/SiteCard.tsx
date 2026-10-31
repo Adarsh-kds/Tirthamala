@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { t } from "@/lib/i18n";
 import type { Card } from "@/lib/view";
 import { AccuracyBadge, StatusBadge, TraditionChip, tradColor } from "./Badges";
@@ -21,9 +21,9 @@ export function SiteCard({ card, tradName }: { card: Card; tradName: (s: string)
         )}
       </div>
       <h3 className="font-display mt-3 text-[1.45rem] leading-tight font-semibold">
-        <Link href={`/site/${card.slug}/`} className="stretched-link">
+        <IntentLink href={`/site/${card.slug}/`} className="stretched-link">
           {card.name}
-        </Link>
+        </IntentLink>
       </h3>
       {card.nameDevanagari && (
         <p lang="sa" className="font-sanskrit text-accent-gold mt-0.5 text-sm">

@@ -10,3 +10,11 @@
   Content-Type: image/png
 /site/:slug/opengraph-image
   Content-Type: image/png
+/cards.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+/geo/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/maplibre/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/sw.js
+  Cache-Control: no-cache

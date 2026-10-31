@@ -36,7 +36,7 @@ export function HeroParallax({ children, className }: { children: ReactNode; cla
     };
   }, []);
   return (
-    <section ref={ref} className={className} aria-labelledby="hero-title">
+    <section ref={ref} className={className} aria-labelledby="hero-title" data-motion>
       {children}
     </section>
   );

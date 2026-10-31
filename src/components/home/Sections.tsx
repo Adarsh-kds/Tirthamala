@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { t } from "@/lib/i18n";
 import { TraditionIcon } from "../motifs/TraditionIcon";
 import { SectionHeading } from "../motifs/Ornament";
@@ -16,7 +16,7 @@ export function Marquee({ names }: { names: string[] }) {
     </ul>
   );
   return (
-    <div className="marquee" role="region" aria-label={t("home.marqueeLabel")}>
+    <div className="marquee" role="region" aria-label={t("home.marqueeLabel")} data-motion>
       <div className="marquee-track">
         {row(false)}
         {row(true)}
@@ -48,7 +48,7 @@ export function CircuitRail({ circuits }: { circuits: CircuitCard[] }) {
         <ul className="rail" aria-label={t("home.scrollHint")} tabIndex={0}>
           {circuits.map((c, i) => (
             <li key={c.slug} className="reveal">
-              <Link
+              <IntentLink
                 href={`/circuit/${c.slug}/`}
                 className="arch-card"
                 style={{ ["--c" as string]: tradColor(c.tradition) }}
@@ -72,15 +72,15 @@ export function CircuitRail({ circuits }: { circuits: CircuitCard[] }) {
                 <span className="arch-go" aria-hidden="true">
                   →
                 </span>
-              </Link>
+              </IntentLink>
             </li>
           ))}
         </ul>
       </div>
       <p className="mt-6 text-center">
-        <Link href="/circuits/" className="link-gold">
+        <IntentLink href="/circuits/" className="link-gold">
           {t("home.allCircuits")}
-        </Link>
+        </IntentLink>
       </p>
     </section>
   );
@@ -101,7 +101,7 @@ export function TraditionGrid({ traditions }: { traditions: Trad[] }) {
         <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {traditions.map((x) => (
             <li key={x.slug} className="reveal">
-              <Link
+              <IntentLink
                 href={`/tradition/${x.slug}/`}
                 className="trad-tile"
                 style={{ ["--c" as string]: tradColor(x.slug) }}
@@ -117,7 +117,7 @@ export function TraditionGrid({ traditions }: { traditions: Trad[] }) {
                     {x.count} {t("home.sitesCount")}
                   </span>
                 </span>
-              </Link>
+              </IntentLink>
             </li>
           ))}
         </ul>

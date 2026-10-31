@@ -24,6 +24,10 @@ export default function Privacy() {
           Fonts, map data and boundaries are served from this site itself. The map does not request
           tiles from outside services.
         </li>
+        <li>
+          To open pages faster and keep them readable offline, your browser keeps copies of pages
+          you have visited and of the site&rsquo;s own files. These stay on your device.
+        </li>
         <li>Links to source pages lead to other websites, which have their own policies.</li>
         <li>
           If you email a correction, your message is read by the publisher and used only to respond

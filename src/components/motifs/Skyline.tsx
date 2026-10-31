@@ -172,7 +172,21 @@ const LAMPS = [
   [60, 303],
 ];
 
-// `still` drops the flag and lamp animations, for copies that sit off-centre or under a filter.
+const VIEW = { viewBox: "0 0 1440 360", preserveAspectRatio: "xMidYMax slice" } as const;
+
+function LampDots({ grad, lamps }: { grad: string; lamps: number[][] }) {
+  return lamps.map(([x, y], i) => (
+    <g key={i}>
+      <circle cx={x} cy={y - 2} r="9" fill={`url(#${grad})`} />
+      <circle cx={x} cy={y - 2} r="1.6" fill="#fff6d8" />
+    </g>
+  ));
+}
+
+// Live lamps flicker as three whole SVG layers (opacity on the compositor), so the skyline never repaints.
+const LAMP_GROUPS = [0, 1, 2].map((k) => LAMPS.filter((_, i) => i % 3 === k));
+
+// `still` draws lamps inside the skyline with no animation, for copies that sit off-centre or under a filter.
 export function Temples({
   id,
   lamps = true,
@@ -184,99 +198,90 @@ export function Temples({
 }) {
   const nagaraShapes = NAGARAS.map(([cx, w, h]) => nagara(cx, B, w, h));
   const mandapaShapes = MANDAPAS.map(([cx, w, h]) => mandapa(cx, B, w, h));
+  const live = lamps && !still;
   return (
-    <svg
-      viewBox="0 0 1440 360"
-      preserveAspectRatio="xMidYMax slice"
-      aria-hidden="true"
-      focusable="false"
-      className="skyline-svg"
-    >
-      <defs>
-        <radialGradient id={`${id}-lamp`}>
-          <stop offset="0" stopColor="#fff3c4" />
-          <stop offset="0.35" stopColor="#ffc861" />
-          <stop offset="1" stopColor="#ff9a2e" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id={`${id}-door`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#ffcf73" stopOpacity="0.15" />
-          <stop offset="1" stopColor="#ffb14a" stopOpacity="0.85" />
-        </linearGradient>
-      </defs>
-      <g id={`${id}-art`}>
-        <g fill="var(--temple)">
-          {TREES.map(([cx, s]) => (
-            <path key={cx} d={tree(cx, B, s)} opacity="0.92" />
-          ))}
-          <path d={GOPURAM.d} />
-          {mandapaShapes.map((m, i) => (
-            <path key={i} d={m.d} />
-          ))}
-          {nagaraShapes.flat().map((s, i) => (
-            <path key={i} d={s.d} />
-          ))}
-          {CHHATRIS.map(([cx, w, h]) => (
-            <path key={cx} d={chhatri(cx, B, w, h)} />
-          ))}
-          <rect x="0" y={B} width="1440" height="60" />
-        </g>
-        <g stroke="var(--accent-gold)" strokeOpacity="0.16" strokeWidth="1" fill="none">
-          {GOPURAM.ribs.map((d) => (
-            <path key={d} d={d} />
-          ))}
-          {STEPS.map((y) => (
-            <path key={y} d={`M0 ${y}H1440`} />
-          ))}
-        </g>
-        <g fill={`url(#${id}-door)`}>
-          <rect
-            x={GOPURAM.door.x}
-            y={GOPURAM.door.y}
-            width={GOPURAM.door.w}
-            height={GOPURAM.door.h}
-            rx="10"
-          />
-          {mandapaShapes.flatMap((m, i) =>
-            m.windows.map((w, j) => (
-              <rect key={`${i}-${j}`} x={w.x} y={w.y} width="10" height={w.h} rx="5" />
-            )),
-          )}
-        </g>
-        {FLAGS.map((f, i) => (
-          <g key={i}>
-            <path d={f.pole} fill="var(--temple)" />
-            <path d={f.cloth} fill="var(--sindoor)" className={still ? undefined : "flag-wave"} />
+    <>
+      <svg {...VIEW} aria-hidden="true" focusable="false" className="skyline-svg">
+        <defs>
+          <radialGradient id={`${id}-lamp`}>
+            <stop offset="0" stopColor="#fff3c4" />
+            <stop offset="0.35" stopColor="#ffc861" />
+            <stop offset="1" stopColor="#ff9a2e" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id={`${id}-door`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="#ffcf73" stopOpacity="0.15" />
+            <stop offset="1" stopColor="#ffb14a" stopOpacity="0.85" />
+          </linearGradient>
+        </defs>
+        <g id={`${id}-art`}>
+          <g fill="var(--temple)">
+            {TREES.map(([cx, s]) => (
+              <path key={cx} d={tree(cx, B, s)} opacity="0.92" />
+            ))}
+            <path d={GOPURAM.d} />
+            {mandapaShapes.map((m, i) => (
+              <path key={i} d={m.d} />
+            ))}
+            {nagaraShapes.flat().map((s, i) => (
+              <path key={i} d={s.d} />
+            ))}
+            {CHHATRIS.map(([cx, w, h]) => (
+              <path key={cx} d={chhatri(cx, B, w, h)} />
+            ))}
+            <rect x="0" y={B} width="1440" height="60" />
           </g>
-        ))}
-        {lamps && (
-          <g>
-            {LAMPS.map(([x, y], i) => (
-              <g
-                key={i}
-                className={still ? undefined : "lamp"}
-                style={still ? undefined : { animationDelay: `${(i * 0.37) % 2.4}s` }}
-              >
-                <circle cx={x} cy={y - 2} r="9" fill={`url(#${id}-lamp)`} />
-                <circle cx={x} cy={y - 2} r="1.6" fill="#fff6d8" />
-              </g>
+          <g stroke="var(--accent-gold)" strokeOpacity="0.16" strokeWidth="1" fill="none">
+            {GOPURAM.ribs.map((d) => (
+              <path key={d} d={d} />
+            ))}
+            {STEPS.map((y) => (
+              <path key={y} d={`M0 ${y}H1440`} />
             ))}
           </g>
-        )}
-      </g>
-    </svg>
+          <g fill={`url(#${id}-door)`}>
+            <rect
+              x={GOPURAM.door.x}
+              y={GOPURAM.door.y}
+              width={GOPURAM.door.w}
+              height={GOPURAM.door.h}
+              rx="10"
+            />
+            {mandapaShapes.flatMap((m, i) =>
+              m.windows.map((w, j) => (
+                <rect key={`${i}-${j}`} x={w.x} y={w.y} width="10" height={w.h} rx="5" />
+              )),
+            )}
+          </g>
+          {FLAGS.map((f, i) => (
+            <g key={i}>
+              <path d={f.pole} fill="var(--temple)" />
+              <path d={f.cloth} fill="var(--sindoor)" />
+            </g>
+          ))}
+          {lamps && still && <LampDots grad={`${id}-lamp`} lamps={LAMPS} />}
+        </g>
+      </svg>
+      {live &&
+        LAMP_GROUPS.map((group, k) => (
+          <svg
+            key={k}
+            {...VIEW}
+            aria-hidden="true"
+            focusable="false"
+            className="skyline-svg lamp"
+            style={{ animationDelay: `${k * 0.8}s` }}
+          >
+            <LampDots grad={`${id}-lamp`} lamps={group} />
+          </svg>
+        ))}
+    </>
   );
 }
 
 // A second copy of an already rendered skyline, drawn by reference instead of repeating the markup.
 export function TemplesCopy({ of }: { of: string }) {
   return (
-    <svg
-      viewBox="0 0 1440 360"
-      preserveAspectRatio="xMidYMax slice"
-      aria-hidden="true"
-      focusable="false"
-      className="skyline-svg"
-    >
+    <svg {...VIEW} aria-hidden="true" focusable="false" className="skyline-svg">
       <use href={`#${of}-art`} />
     </svg>
   );

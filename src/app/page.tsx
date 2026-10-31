@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { getCards, getRegions } from "@/lib/catalog";
 import { getCircuits, getTraditions } from "@/lib/data";
 import { t } from "@/lib/i18n";
@@ -72,9 +72,9 @@ export default function Home() {
           />
           <p className="text-text-soft mt-3 text-center text-xs">
             {cards.length} {t("home.sitesCount")} · {published} {t("home.publishedCount")} ·{" "}
-            <Link href="/about/#verification" className="link-gold">
+            <IntentLink href="/about/#verification" className="link-gold">
               {t("home.howVerified")}
-            </Link>
+            </IntentLink>
           </p>
           <div className="mt-10">
             <Hub

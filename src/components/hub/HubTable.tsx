@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { useMemo, useState } from "react";
 import { t, type MessageKey } from "@/lib/i18n";
 import type { Card } from "@/lib/view";
@@ -65,9 +65,9 @@ export default function HubTable({
           {rows.map((c) => (
             <tr key={c.slug} className="border-rule border-b align-top">
               <td className="py-2 pr-4">
-                <Link href={`/site/${c.slug}/`} className="text-accent underline">
+                <IntentLink href={`/site/${c.slug}/`} className="text-accent underline">
                   {c.name}
-                </Link>
+                </IntentLink>
               </td>
               <td className="py-2 pr-4">{value(c, "tradition")}</td>
               <td className="py-2 pr-4">{c.state}</td>

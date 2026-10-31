@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { circuitsForSite, getSite, getSites, getTraditions } from "@/lib/data";
 import { regionOf, slugify, distanceKm, relatedFor, toCard, toPoints } from "@/lib/view";
@@ -219,7 +219,7 @@ export default async function SitePage({ params }: PageProps<"/site/[slug]">) {
         </Section>
       )}
 
-      <Section id="location" title={t("site.location")}>
+      <Section id="location" title={t("site.location")} eager>
         {hasCoords ? (
           <>
             <p className="mt-3">
@@ -249,9 +249,9 @@ export default async function SitePage({ params }: PageProps<"/site/[slug]">) {
             <ul className="mt-2 list-disc pl-6">
               {nearby.map(({ o, d }) => (
                 <li key={o.slug}>
-                  <Link className="underline" href={`/site/${o.slug}/`}>
+                  <IntentLink className="underline" href={`/site/${o.slug}/`}>
                     {o.name}
-                  </Link>{" "}
+                  </IntentLink>{" "}
                   — {t("site.nearbyDistance", { km: Math.round(d) })}
                 </li>
               ))}
@@ -267,9 +267,9 @@ export default async function SitePage({ params }: PageProps<"/site/[slug]">) {
               const m = c.members.find((x) => x.siteSlug === s.slug)!;
               return (
                 <li key={c.slug}>
-                  <Link className="underline" href={`/circuit/${c.slug}/`}>
+                  <IntentLink className="underline" href={`/circuit/${c.slug}/`}>
                     {c.name}
-                  </Link>
+                  </IntentLink>
                   {m.order ? ` — ${t("site.circuitOrder", { n: m.order })}` : ""}
                   {m.role !== "standard" ? ` (${t(`role.${m.role}`)})` : ""}
                   {m.note ? `. ${m.note}` : ""}
@@ -289,9 +289,9 @@ export default async function SitePage({ params }: PageProps<"/site/[slug]">) {
               return (
                 <li key={r.siteSlug}>
                   <span className="text-text-soft">{t(`relation.${r.relation}`)}:</span>{" "}
-                  <Link className="underline" href={`/site/${o.slug}/`}>
+                  <IntentLink className="underline" href={`/site/${o.slug}/`}>
                     {o.name}
-                  </Link>
+                  </IntentLink>
                   {r.note ? `. ${r.note}` : ""}
                 </li>
               );

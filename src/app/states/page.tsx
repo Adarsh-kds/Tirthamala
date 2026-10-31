@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { getRegions } from "@/lib/catalog";
 import { t } from "@/lib/i18n";
 import { PageHeading } from "@/components/Article";
@@ -17,9 +17,9 @@ export default function States() {
       <ul className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {getRegions().map((r) => (
           <li key={r.slug}>
-            <Link className="underline" href={`/state/${r.slug}/`}>
+            <IntentLink className="underline" href={`/state/${r.slug}/`}>
               {r.name}
-            </Link>{" "}
+            </IntentLink>{" "}
             <span className="text-text-soft text-sm">({r.count})</span>
           </li>
         ))}

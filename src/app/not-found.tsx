@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink } from "@/components/IntentLink";
 import { t } from "@/lib/i18n";
 
 export default function NotFound() {
@@ -7,9 +7,9 @@ export default function NotFound() {
       <h1 className="font-display text-accent text-4xl font-semibold">{t("notFound.title")}</h1>
       <p className="text-text-soft mt-4">{t("notFound.body")}</p>
       <p className="mt-6">
-        <Link href="/" className="underline">
+        <IntentLink href="/" className="underline">
           {t("notFound.back")}
-        </Link>
+        </IntentLink>
       </p>
     </main>
   );

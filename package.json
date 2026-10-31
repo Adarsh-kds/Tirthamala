@@ -18,7 +18,8 @@
     "apply": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/apply.ts",
     "prebuild": "node scripts/copy-maplibre-worker.mjs",
     "predev": "node scripts/copy-maplibre-worker.mjs",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "postbuild": "node scripts/fix-segment-paths.mjs"
   },
   "dependencies": {
     "@fontsource-variable/source-sans-3": "^5.3.0",
